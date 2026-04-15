@@ -22,7 +22,7 @@ const Booking: FC<{ text: string }> = ({ text }) => {
       description={DESCRIPTION}
       address={ADDRESS}
       trigger={
-        <Button className="inline-flex rounded-lg items-center justify-center px-10 py-6 border border-transparent text-lg lg:text-xl fot-medium text-white hover:scale-105 bg-green-light hover:bg-green-500">
+        <Button className="inline-flex rounded-full items-center justify-center px-8 py-3 border border-transparent text-base font-bold text-[#6e5400] hover:scale-105 transition-transform bg-[#ffc703] hover:bg-[#f5bf00]">
           {text}&nbsp;
           <Image priority src={RightChevron} alt="next svg" />
         </Button>

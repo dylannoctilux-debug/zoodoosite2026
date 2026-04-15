@@ -29,7 +29,7 @@ const SectionTitle: FC<ISectionTitleProps> = ({
       )}
       <div
         className={clsx(
-          "font-bold text-3xl leading-normal md:text-4xl md:leading-normal lg:text-[48px] lg:leading-snug text-text-default uppercase py-2",
+          "font-bold text-3xl leading-normal md:text-4xl md:leading-normal lg:text-[48px] lg:leading-snug text-[#003b1b] uppercase py-2 font-[var(--font-headline)]",
           align === "center" ? "text-center" : " text-start"
         )}
       >

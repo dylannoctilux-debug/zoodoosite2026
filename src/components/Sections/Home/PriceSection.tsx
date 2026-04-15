@@ -35,21 +35,21 @@ const PricesAndNotice = () => {
   const renderPrice = (height: string, price: string) => {
     return (
       <div className="flex flex-row pt-4">
-        <div className="w-10 h-6 bg-orange-200 rounded-[4px] mr-4 mt-1 lg:mt-2.5" />
+        <div className="w-10 h-6 bg-[#ffc703] rounded-[4px] mr-4 mt-1 lg:mt-2.5" />
         <div className="flex flex-col items-start justify-start space-y-4 w-full">
-          <p className="text-text-default font-normal uppercase text-lg lg:text-[30px]">
+          <p className="text-[#131e19] font-normal uppercase text-lg lg:text-[30px]">
             {height}
           </p>
           {price === "0" ? (
-            <p className="text-text-default text-xl lg:text-2xl font-bold">
+            <p className="text-[#003b1b] text-xl lg:text-2xl font-bold">
               Miễn phí
             </p>
           ) : (
             <div className="flex flex-row space-x-2">
-              <p className="text-text-default text-xl lg:text-2xl font-bold">
+              <p className="text-[#003b1b] text-xl lg:text-2xl font-bold">
                 {price}
               </p>
-              <p className="text-text-default text-xl lg:text-2xl">VNĐ/người</p>
+              <p className="text-[#131e19] text-xl lg:text-2xl">VNĐ/người</p>
             </div>
           )}
         </div>
@@ -68,14 +68,14 @@ const PricesAndNotice = () => {
       <div className="py-2">
         <BookingButton text="Đặt vé" bgColor="orange" className="px-16" />
       </div>
-      <p className="text-text-default font-semibold text-lg">Lưu ý:</p>
-      <p className="text-[#4B5563] font-normal">
+      <p className="text-[#131e19] font-semibold text-lg">Lưu ý:</p>
+      <p className="text-[#404941] font-normal">
         - Giá vé cho một chuyến tham quan 90 - 110 phút.
       </p>
-      <p className="text-[#4B5563]  font-normal">
+      <p className="text-[#404941] font-normal">
         - Trẻ em phải được đi kèm với cha mẹ hoặc người giám hộ.
       </p>
-      <p className="text-[#4B5563] font-normal">
+      <p className="text-[#404941] font-normal">
         - Người lớn chịu trách nhiệm với các con trẻ của mình.
       </p>
     </div>
@@ -95,10 +95,10 @@ const PriceSection = () => {
               height={60}
             />
           </div>
-          <div className="font-bold text-3xl lg:text-4xl lg:text-[48px] text-text-default uppercase">
+          <div className="font-bold text-3xl lg:text-4xl lg:text-[48px] text-[#003b1b] uppercase">
             Giá vé tham quan
           </div>
-          <div className="w-full lg:w-4/5 text-text-default text-center lg:text-start py-4 font-semibold text-lg leading-[27px]">
+          <div className="w-full lg:w-4/5 text-[#131e19] text-center lg:text-start py-4 font-normal text-lg leading-[27px]">
             Các hoạt động tham quan vườn thú mang đến cho bạn một trải nghiệm
             thú vị và gần gũi với thế giới động vật. Bạn sẽ được tương tác với
             các sinh vật đáng yêu, mà còn có thể biết thêm nhiều kiến thức mới

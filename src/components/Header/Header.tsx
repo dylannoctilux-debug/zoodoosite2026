@@ -33,8 +33,10 @@ const Header = () => {
   return (
     <header
       className={clsx(
-        "fixed top-0 left-0 right-0 flex items-center justify-center p-4  text-white w-full z-50 ",
-        shouldShowTransparent ? "bg-transparent" : "bg-white shadow-md"
+        "fixed top-0 left-0 right-0 flex items-center justify-center px-6 py-4 text-white w-full z-50 transition-all duration-300",
+        shouldShowTransparent
+          ? "bg-transparent"
+          : "bg-[#f0fdf4]/90 backdrop-blur-xl shadow-sm"
       )}
     >
       <div className="lg:flex flex-wrap justify-between items-center max-w-7xl w-full hidden">
@@ -58,52 +60,28 @@ const Header = () => {
           </Link>
         </div>
         <nav>
-          <ul className="flex space-x-6 flex-row justify-between items-center">
-            <li>
-              <Link
-                href="/ve-zoodoo"
-                className={clsx(
-                  "text-lg",
-                  shouldShowTransparent ? "text-white" : "text-green-default"
-                )}
-              >
-                Về chúng tôi
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/ghe-tham-zoodoo"
-                className={clsx(
-                  "text-lg",
-                  shouldShowTransparent ? "text-white" : "text-green-default"
-                )}
-              >
-                Ghé Thăm ZooDoo
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/trai-nghiem-zoodoo"
-                className={clsx(
-                  "text-lg",
-                  shouldShowTransparent ? "text-white" : "text-green-default"
-                )}
-              >
-                Trải nghiệm ở ZooDoo
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/tin-tuc-va-hoat-dong"
-                className={clsx(
-                  "text-lg",
-                  shouldShowTransparent ? "text-white" : "text-green-default"
-                )}
-              >
-                Tin tức hoạt động
-              </Link>
-            </li>
-            <li className="pl-6">
+          <ul className="flex space-x-8 flex-row justify-between items-center">
+            {[
+              { href: "/ve-zoodoo", label: "Về chúng tôi" },
+              { href: "/ghe-tham-zoodoo", label: "Ghé Thăm ZooDoo" },
+              { href: "/trai-nghiem-zoodoo", label: "Trải nghiệm ở ZooDoo" },
+              { href: "/tin-tuc-va-hoat-dong", label: "Tin tức hoạt động" },
+            ].map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={clsx(
+                    "text-base font-semibold tracking-tight transition-colors duration-300 pb-1",
+                    shouldShowTransparent
+                      ? "text-white hover:text-amber-300 border-b-2 border-transparent hover:border-amber-300"
+                      : "text-[#003b1b] hover:text-[#2e6a41] border-b-2 border-transparent hover:border-[#003b1b]"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+            <li className="pl-4">
               <Booking text="ĐẶT VÉ NGAY" />
             </li>
           </ul>

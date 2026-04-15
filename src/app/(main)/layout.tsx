@@ -1,6 +1,6 @@
 import Script from "next/script";
 import type { Metadata } from "next";
-import { Asap } from "next/font/google";
+import { Plus_Jakarta_Sans, Be_Vietnam_Pro } from "next/font/google";
 
 import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
@@ -14,7 +14,17 @@ import FacebookAnalytics from "../../components/Analytic/FacebookAnalytics";
 import "../globals.css";
 import { Toaster } from "../../components/atom/toaster";
 
-const asap = Asap({ subsets: ["vietnamese"] });
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-headline",
+});
+
+const beVietnam = Be_Vietnam_Pro({
+  subsets: ["vietnamese"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
   title: "ZooDoo - VƯỜN THÚ THÂN THIỆN CHUẨN ÚC ĐẦU TIÊN TẠI VIỆT NAM",
@@ -60,7 +70,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="vi" className={`${plusJakarta.variable} ${beVietnam.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <GoogleAnalytics />
@@ -69,7 +79,7 @@ export default function RootLayout({
         <Script src="https://sp.zalo.me/plugins/sdk.js" />
       </head>
       <body
-        className={`${asap.className} flex flex-col w-screen bg-[#FFF9E9] justify-between min-h-screen lg:pl-0 overflow-x-hidden relative`}
+        className={`${beVietnam.className} flex flex-col w-screen bg-[#f0fdf4] justify-between min-h-screen lg:pl-0 overflow-x-hidden relative`}
       >
         <Header />
         <MessengerChat />
