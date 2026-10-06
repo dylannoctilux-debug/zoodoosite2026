@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+.next
+.git
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!api/.env.example
+artifacts
+.test-data

@@ -1,0 +1,29 @@
+{
+  "uploadParts": [
+    200,
+    200,
+    200
+  ],
+  "application": {
+    "status": 201,
+    "saved": true
+  },
+  "crossOrigin": 403,
+  "anonymousAdmin": 307,
+  "brokenStaffCookie": 307,
+  "originalHeroBytes": 1291037,
+  "optimizedHero": [
+    {
+      "width": 750,
+      "status": 200,
+      "type": "image/avif",
+      "bytes": 9667
+    },
+    {
+      "width": 1920,
+      "status": 200,
+      "type": "image/avif",
+      "bytes": 32200
+    }
+  ]
+}

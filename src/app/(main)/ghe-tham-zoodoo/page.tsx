@@ -78,6 +78,7 @@ const VisitUs = () => {
     <div className="flex flex-col pt-24">
       <MainContainer>
         <SectionTitle
+          level="h1"
           icon={"/assets/images/section-icons/icon3.png"}
           title={"ĐẾN ZOODOO DALAT"}
         />

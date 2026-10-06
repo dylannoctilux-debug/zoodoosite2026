@@ -2,14 +2,18 @@
 import { useToast } from "@/components/atom/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useFormStatus } from "react-dom";
-import dayjs from "dayjs";
 
 import { UpdateBookingSchema } from "@/schema/booking";
 import { Button } from "@/components/atom/button";
 import { Input } from "@/components/atom/input";
 import { Label } from "@/components/atom/label";
 import Spinner from "@/components/atom/spinner";
-import { Booking, BookingStatus } from "@prisma/client";
+import {
+  type Booking,
+  BookingStatus,
+  zooDate,
+  zooInstant,
+} from "../../../../../../shared/booking";
 import {
   SelectValue,
   SelectTrigger,
@@ -21,9 +25,7 @@ import { acceptBooking, updateBooking } from "@/actions/booking";
 import { useRouter } from "next/navigation";
 
 const dateForDateTimeInputValue = (date: Date) =>
-  new Date(date.getTime() + new Date().getTimezoneOffset() * -60 * 1000)
-    .toISOString()
-    .slice(0, 19);
+  zooDate(date).format("YYYY-MM-DDTHH:mm");
 
 const BookingFormUI = ({ data }: { data: Booking }) => {
   const { pending } = useFormStatus();
@@ -45,21 +47,18 @@ const BookingFormUI = ({ data }: { data: Booking }) => {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="name">Status</Label>
+          <Label htmlFor="status">Status</Label>
           <Select defaultValue={data.status} name="status" disabled={pending}>
-            <SelectTrigger>
+            <SelectTrigger id="status">
               <SelectValue placeholder="Select a status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={BookingStatus.ACCEPTED}>
-                {BookingStatus.ACCEPTED}
-              </SelectItem>
-              <SelectItem value={BookingStatus.PENDING}>
-                {BookingStatus.PENDING}
-              </SelectItem>
-              <SelectItem value={BookingStatus.CANCELLED}>
-                {BookingStatus.CANCELLED}
-              </SelectItem>
+              <SelectItem value={data.status}>{data.status}</SelectItem>
+              {data.status !== BookingStatus.CANCELLED && (
+                <SelectItem value={BookingStatus.CANCELLED}>
+                  {BookingStatus.CANCELLED}
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -88,7 +87,7 @@ const BookingFormUI = ({ data }: { data: Booking }) => {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="check-in">Check-in date</Label>
+          <Label htmlFor="start_time">Check-in date</Label>
           <Input
             id="start_time"
             type="datetime-local"
@@ -99,30 +98,34 @@ const BookingFormUI = ({ data }: { data: Booking }) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="guests">Adults</Label>
+          <Label htmlFor="adults">Adults</Label>
           <Input
             id="adults"
             name="adults"
             placeholder="Enter your email"
             required
             type="number"
+            min={1}
+            step={1}
             defaultValue={data.adults}
             disabled={pending}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="check-out">Kids</Label>
+          <Label htmlFor="kids">Kids</Label>
           <Input
             id="kids"
             name="kids"
             required
             defaultValue={data.kids}
             type="number"
+            min={0}
+            step={1}
             disabled={pending}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="check-out">Notes</Label>
+          <Label htmlFor="note">Notes</Label>
           <Input
             id="note"
             name="note"
@@ -149,11 +152,29 @@ const BookingFormUI = ({ data }: { data: Booking }) => {
                 adults: Number(formData.get("adults")),
                 kids: Number(formData.get("kids")),
                 note: String(formData.get("note")),
-                start_time: new Date(String(start_time)),
-                end_time: dayjs(String(start_time)).add(90, "minute").toDate(),
+                start_time: zooInstant(
+                  String(start_time).slice(0, 10),
+                  String(start_time).slice(11, 16),
+                ),
+                end_time: new Date(
+                  +zooInstant(
+                    String(start_time).slice(0, 10),
+                    String(start_time).slice(11, 16),
+                  ) +
+                    90 * 60000,
+                ),
               };
 
-              const validatedFields = UpdateBookingSchema.parse(_data);
+              const changes: Partial<typeof _data> = { ..._data };
+              if (
+                +_data.start_time === +data.start_time &&
+                +_data.end_time === +data.end_time
+              ) {
+                delete changes.start_time;
+                delete changes.end_time;
+              }
+              const validatedFields =
+                UpdateBookingSchema.partial().parse(changes);
               if (!validatedFields) {
                 throw new Error("Bad Request");
               }
@@ -163,12 +184,13 @@ const BookingFormUI = ({ data }: { data: Booking }) => {
                 data: validatedFields,
               });
 
+              if (!response.ok) throw new Error(response.error);
               toast({
-                title: "Success",
-                description: "Update Sucessfully",
+                title: "Đã lưu",
+                description: "Thông tin booking đã được cập nhật",
                 action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
               });
-              return response;
+              router.refresh();
             } catch (e: any) {
               toast({
                 title: "Error",
@@ -191,13 +213,14 @@ const BookingFormUI = ({ data }: { data: Booking }) => {
                   id: data.id,
                 });
 
+                if (!response.ok) throw new Error(response.error);
                 toast({
-                  title: "Success",
-                  description: "Booking Accepted",
+                  title: "Đã xác nhận",
+                  description: "Booking đã được xác nhận. Email đang chờ gửi",
                   action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
                 });
                 router.push("/admin");
-                return response;
+                router.refresh();
               } catch (e: any) {
                 toast({
                   title: "Error",

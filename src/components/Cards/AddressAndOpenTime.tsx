@@ -24,9 +24,9 @@ const AddressAndOpenTime = () => {
           className="pl-4"
         />
         <div className="ml-4">
-          <h3 className="text-xl lg:text-2xl font-semibold text-gray-700">
+          <h2 className="text-xl lg:text-2xl font-semibold text-gray-700">
             Địa chỉ
-          </h3>
+          </h2>
           <p className="text-xl lg:text-2xl text-gray-500">
             Quốc lộ 27C, tiểu khu 94A, Đạ Nhim
           </p>
@@ -43,9 +43,9 @@ const AddressAndOpenTime = () => {
           className="pl-4"
         />
         <div className="ml-4">
-          <h3 className="text-xl lg:text-2xl font-semibold text-gray-700">
+          <h2 className="text-xl lg:text-2xl font-semibold text-gray-700">
             Giờ hoạt động
-          </h3>
+          </h2>
           <p className="text-xl lg:text-2xl text-gray-500">
             Mở cửa tất cả các ngày trong tuần
           </p>

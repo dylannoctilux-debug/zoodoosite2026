@@ -44,12 +44,13 @@ const LoginPageUI = () => {
           placeholder="password"
           type={isPasswordHidden ? "password" : "text"}
           autoCapitalize="none"
-          autoComplete="password"
+          autoComplete="current-password"
           autoCorrect="off"
           disabled={pending}
           iconRight={
             <Button
-              type="submit"
+              type="button"
+              aria-label={isPasswordHidden ? "Hiện mật khẩu" : "Ẩn mật khẩu"}
               variant="link"
               className="absolute right-0"
               onClick={(e) => {
@@ -98,7 +99,8 @@ const LoginPage = () => {
               <form
                 action={async (formData: FormData) => {
                   try {
-                    return await login(formData);
+                    const result = await login(formData);
+                    if (result?.error) throw new Error(result.error);
                   } catch (e: any) {
                     toast({
                       title: "Error",

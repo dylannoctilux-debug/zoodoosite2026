@@ -14,6 +14,7 @@ const ImageGrid11: FC<ImageGrid11Props> = ({ image1, image2 }) => {
           src={image1}
           alt="ZooDoo animal image"
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           style={{
             objectFit: "contain",
           }}
@@ -24,6 +25,7 @@ const ImageGrid11: FC<ImageGrid11Props> = ({ image1, image2 }) => {
           src={image2}
           alt="ZooDoo animal image"
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           style={{
             objectFit: "contain",
           }}

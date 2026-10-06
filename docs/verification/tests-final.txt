@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: Every API request requires service identity; guest cannot read or mutate admin resources
+ok 1 - Every API request requires service identity; guest cannot read or mutate admin resources
+  ---
+  duration_ms: 2100.891125
+  type: 'test'
+  ...
+# Subtest: Runtime booking validation rejects forged status, negative counts, invalid times and past slots
+ok 2 - Runtime booking validation rejects forged status, negative counts, invalid times and past slots
+  ---
+  duration_ms: 41.062708
+  type: 'test'
+  ...
+# Subtest: Concurrent retries create one booking and durable notification events
+ok 3 - Concurrent retries create one booking and durable notification events
+  ---
+  duration_ms: 39.868125
+  type: 'test'
+  ...
+# Subtest: Read permission does not imply update/accept; acceptance emits once
+ok 4 - Read permission does not imply update/accept; acceptance emits once
+  ---
+  duration_ms: 17.489292
+  type: 'test'
+  ...
+# Subtest: Deleted user, revoked session and malformed token are denied
+ok 5 - Deleted user, revoked session and malformed token are denied
+  ---
+  duration_ms: 90.839583
+  type: 'test'
+  ...
+# Subtest: CV is sniffed, persists across API restart and cannot be downloaded by guests
+ok 6 - CV is sniffed, persists across API restart and cannot be downloaded by guests
+  ---
+  duration_ms: 37.678833
+  type: 'test'
+  ...
+# Subtest: 5 MB CV uploads work in parts below Vercel request limits, with ownership checks
+ok 7 - 5 MB CV uploads work in parts below Vercel request limits, with ownership checks
+  ---
+  duration_ms: 87.650333
+  type: 'test'
+  ...
+# Subtest: SMTP failure keeps database state; timeout is held for reconciliation
+ok 8 - SMTP failure keeps database state; timeout is held for reconciliation
+  ---
+  duration_ms: 32.54775
+  type: 'test'
+  ...
+# Subtest: Database closures and policy determine slots; malformed dates are rejected
+ok 9 - Database closures and policy determine slots; malformed dates are rejected
+  ---
+  duration_ms: 12.835375
+  type: 'test'
+  ...
+# Subtest: Abandoned SMTP delivery needs reconciliation and cannot be retried by guests
+ok 10 - Abandoned SMTP delivery needs reconciliation and cannot be retried by guests
+  ---
+  duration_ms: 19.969792
+  type: 'test'
+  ...
+# Subtest: Calendar contains each day exactly once, including Sunday starts, leap years and year transitions
+ok 11 - Calendar contains each day exactly once, including Sunday starts, leap years and year transitions
+  ---
+  duration_ms: 2.808
+  type: 'test'
+  ...
+# Subtest: Vietnam slot remains the same instant when device timezone changes
+ok 12 - Vietnam slot remains the same instant when device timezone changes
+  ---
+  duration_ms: 8.123375
+  type: 'test'
+  ...
+# Subtest: Lead time is not rounded down and slots remain on the chosen date
+ok 13 - Lead time is not rounded down and slots remain on the chosen date
+  ---
+  duration_ms: 0.512042
+  type: 'test'
+  ...
+# Subtest: Server rejects negative people, invalid email and invalid visit range
+ok 14 - Server rejects negative people, invalid email and invalid visit range
+  ---
+  duration_ms: 0.952458
+  type: 'test'
+  ...
+# Subtest: Empty CMS content and invalid pagination values are safe
+ok 15 - Empty CMS content and invalid pagination values are safe
+  ---
+  duration_ms: 0.316583
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3529.61675

@@ -31,11 +31,11 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/assets/images/logo-zoodoo-green.png",
+        url: "/assets/images/logos/logo-zoodoo-green.png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/assets/images/logo-zoodoo-white.png",
+        url: "/assets/images/logos/logo-zoodoo-white.png",
         media: "(prefers-color-scheme: dark)",
       },
     ],
@@ -44,24 +44,22 @@ export const metadata: Metadata = {
     "Chào mừng bạn đến với ZooDoo, điểm đến kỳ diệu của động vật hoang dã độc đáo tại Việt Nam! Hòa mình vào những môi trường đa dạng của các loài kangaroo, koala và những sinh vật biểu tượng khác của Australia. Tại ZooDoo, chúng tôi hòa quyện niềm phấn khởi khám phá với sự hứng thú của việc học, mang đến trải nghiệm khó quên cho du khách. Cam kết của chúng tôi đối với bảo tồn động vật hoang dã nằm tại trái tim mọi hoạt động. Hãy cùng tham gia hành trình vượt qua giới giải trí, tạo nên một liên kết sâu sắc giữa bạn và những động vật hoang dã tuyệt vời của chúng tôi. Khám phá ZooDoo, nơi trái tim hoang dã của Việt Nam đập mạnh hơn bao giờ hết.",
   openGraph: {
     type: "website",
-    locale: "vn_VN",
-    url: "https://www.zoodoo.vn/",
+    locale: "vi_VN",
+    url: process.env.SITE_URL || "https://zoodoo.vn/",
     title: "ZooDoo - VƯỜN THÚ THÂN THIỆN CHUẨN ÚC ĐẦU TIÊN TẠI VIỆT NAM",
     description:
       "Chào mừng bạn đến với ZooDoo, điểm đến kỳ diệu của động vật hoang dã độc đáo tại Việt Nam! Hòa mình vào những môi trường đa dạng của các loài kangaroo, koala và những sinh vật biểu tượng khác của Australia. Tại ZooDoo, chúng tôi hòa quyện niềm phấn khởi khám phá với sự hứng thú của việc học, mang đến trải nghiệm khó quên cho du khách. Cam kết của chúng tôi đối với bảo tồn động vật hoang dã nằm tại trái tim mọi hoạt động. Hãy cùng tham gia hành trình vượt qua giới giải trí, tạo nên một liên kết sâu sắc giữa bạn và những động vật hoang dã tuyệt vời của chúng tôi. Khám phá ZooDoo, nơi trái tim hoang dã của Việt Nam đập mạnh hơn bao giờ hết.",
     images: [
       {
-        url: "/assets/images/logo-zoodoo-white.png",
-        width: 1200,
-        height: 630,
-        alt: "Og Image Alt",
+        url: "/assets/images/logos/logo-zoodoo-white.png",
+        alt: "ZooDoo",
       },
     ],
   },
   twitter: {
     site: "@zoodoo",
   },
-  metadataBase: new URL("https://www.zoodoodalat.com/"),
+  metadataBase: new URL(process.env.SITE_URL || "https://zoodoo.vn/"),
 };
 
 export default function RootLayout({
@@ -79,11 +77,19 @@ export default function RootLayout({
         <Script src="https://sp.zalo.me/plugins/sdk.js" />
       </head>
       <body
-        className={`${beVietnam.className} flex flex-col w-screen bg-[#f0fdf4] justify-between min-h-screen lg:pl-0 overflow-x-hidden relative`}
+        className={`${beVietnam.className} flex flex-col bg-green-pale justify-between min-h-screen lg:pl-0 overflow-x-hidden relative`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:p-3"
+        >
+          Đến nội dung chính
+        </a>
         <Header />
         <MessengerChat />
-        {children}
+        <main id="main-content" tabIndex={-1}>
+          {children}
+        </main>
         <Footer />
         <FooterMobile />
         <ZaloChat />

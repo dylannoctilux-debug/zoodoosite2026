@@ -1,39 +1,20 @@
 "use server";
-import { ENV } from "@/constants/env";
-import { sealData, unsealData } from "iron-session";
 import { cookies } from "next/headers";
-
-const sessionPassword = process.env.SESSION_PASSWORD as string;
-if (!sessionPassword) throw new Error("SESSION_PASSWORD is not set");
-
-export type ISession = {
-  login: string;
-};
-
-export async function getSession(): Promise<ISession | null> {
-  const encryptedSession = cookies().get("auth_session")?.value;
-
-  const session = encryptedSession
-    ? ((await unsealData(encryptedSession, {
-        password: sessionPassword,
-      })) as string)
-    : null;
-
-  try {
-    return session ? (JSON.parse(session) as ISession) : null;
-  } catch (e) {
-    throw e;
-  }
+import { redirect } from "next/navigation";
+import { identity, staffToken } from "@/server/auth";
+import { privateApi, ApiError } from "@/server/private-api";
+export async function getSession() {
+  return identity();
 }
-
-export async function setSession(user: ISession): Promise<void> {
-  const encryptedSession = await sealData(JSON.stringify(user), {
-    password: sessionPassword,
-  });
-
-  cookies().set("auth_session", encryptedSession, {
-    sameSite: "strict",
-    httpOnly: true,
-    secure: ENV.SESSION_SECURE,
-  });
+export async function logout() {
+  const token = await staffToken();
+  if (token) {
+    try {
+      await privateApi("/sessions/logout", { method: "POST", token });
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 401) throw error;
+    }
+  }
+  (await cookies()).delete("auth_session");
+  redirect("/admin/login");
 }

@@ -27,16 +27,18 @@ const BookingButton: FC<IBookingButtonProps> = ({
       className={clsx(
         "inline-flex rounded-full items-center justify-center px-8 py-3 border border-transparent text-base font-bold hover:scale-105 transition-transform",
         bgColor === "green"
-          ? "bg-[#003b1b] text-white hover:bg-[#2e6a41]"
-          : "bg-[#ffc703] text-[#6e5400] hover:bg-[#f5bf00]",
-        className
+          ? "bg-green-default text-white hover:bg-[#2e6a41]"
+          : "bg-amber-default text-amber-dark hover:bg-[#f5bf00]",
+        className,
       )}
       href={`tel:${ZOODOO_PHONE_NUMBER}`}
     >
       <span className={clsx("pr-2", uppercase && "uppercase")}>
-        {text}
+        {/đặt/i.test(text) && !/gọi/i.test(text)
+          ? `Gọi ${text.toLowerCase()}`
+          : text}
       </span>
-      {withIcon && <Image priority src={RightChevron} alt="next svg" />}
+      {withIcon && <Image priority src={RightChevron} alt="" />}
     </a>
   );
 };

@@ -25,45 +25,45 @@ const config: Config = {
         // === ZooDoo Unified Brand System ===
         // Primary web palette (from stitch redesign)
         green: {
-          default: "#003b1b",   // Forest Green — primary web
-          light: "#2e6a41",     // Hover / interactive green
-          pale: "#f0fdf4",      // Mint surface / page bg
-          low: "#eaf7ee",       // Card background
-          high: "#d9e6dd",      // Divider / border
+          default: "var(--zd-primary)", // Forest Green — primary web
+          light: "var(--zd-primary-hover)", // Hover / interactive green
+          pale: "var(--zd-surface)", // Mint surface / page bg
+          low: "var(--zd-card-bg)", // Card background
+          high: "var(--zd-border)", // Divider / border
         },
         // Brand originals (kept for footer, print-adjacent, warm sections)
         brown: {
-          default: "#5a3e2b",   // ZD Brown — footer bg, section headers
-          light: "#8b6345",     // Lighter brown
+          default: "var(--zd-brown)", // ZD Brown — footer bg, section headers
+          light: "#8b6345", // Lighter brown
         },
         gold: {
-          default: "#c8a97a",   // Warm Gold — accent, dividers, labels
-          light: "#e8d5b0",     // Light gold for hover
+          default: "var(--zd-gold)", // Warm Gold — accent, dividers, labels
+          light: "#e8d5b0", // Light gold for hover
         },
         // CTA — Amber (web-optimized, WCAG AA pass on light bg)
         amber: {
-          default: "#ffc703",   // CTA button background
-          dark: "#6e5400",      // Text on amber CTA
-          light: "#fff3c4",     // Light amber surface
+          default: "var(--zd-amber)", // CTA button background
+          dark: "var(--zd-amber-text)", // Text on amber CTA
+          light: "#fff3c4", // Light amber surface
         },
         // Legacy orange kept for backward compat (maps to amber)
         orange: {
-          default: "#ffc703",
+          default: "var(--zd-amber)",
           light: "#f5bf00",
         },
         gray: {
-          default: "#d9e6dd",
-          light: "#f0fdf4",
+          default: "var(--zd-border)",
+          light: "var(--zd-surface)",
         },
         text: {
-          default: "#131e19",   // Dark forest — body text
-          title: "#003b1b",     // Primary green — headings
-          description: "#404941", // Subtle text
-          gray: "#717970",      // Placeholder / muted
+          default: "var(--zd-text)", // Dark forest — body text
+          title: "var(--zd-primary)", // Primary green — headings
+          description: "var(--zd-text-muted)", // Subtle text
+          gray: "var(--zd-text-muted)", // Placeholder / muted
         },
         // Cream surface (warm sections — testimonials, info blocks)
         cream: {
-          default: "#f7f3ee",
+          default: "var(--zd-cream)",
           dark: "#f0ebe4",
         },
         border: "hsl(var(--border))",

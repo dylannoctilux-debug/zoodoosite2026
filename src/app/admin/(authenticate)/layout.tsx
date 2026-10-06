@@ -1,20 +1,16 @@
-import { Suspense } from "react";
-import { Sidebar } from "../../../components/sidebar";
-import "../../globals.css";
-
-interface AuthenticatedLayoutProps {
-  children: React.ReactNode;
-}
-
-export default function AuthenticatedLayout({
+import { requireStaff, identity } from "@/server/auth";
+import { Sidebar } from "@/components/sidebar";
+export default async function AuthenticatedLayout({
   children,
-}: AuthenticatedLayoutProps) {
+}: {
+  children: React.ReactNode;
+}) {
+  await requireStaff();
+  const user = await identity();
   return (
-    <section>
-      <div className="grid lg:grid-cols-5">
-        <Sidebar className="hidden lg:block" />
-        <div className="col-span-3 lg:col-span-4 lg:border-l">{children}</div>
-      </div>
-    </section>
+    <div className="grid lg:grid-cols-5">
+      <Sidebar permissions={user?.permissions || []} />
+      <div className="min-w-0 lg:col-span-4">{children}</div>
+    </div>
   );
 }

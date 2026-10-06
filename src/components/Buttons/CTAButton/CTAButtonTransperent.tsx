@@ -20,13 +20,13 @@ const CTAButtonTransperent: FC<ICTAButtonProps> = ({
     <button
       onClick={onClick}
       className={clsx(
-        "inline-flex items-center justify-start py-3 border border-transparent bg-transparent hover:opacity-70"
+        "inline-flex items-center justify-start py-3 border border-transparent bg-transparent hover:opacity-70",
       )}
     >
       <span
         className={clsx(
           "pr-2 uppercase text-2xl font-bold",
-          color === "green" ? "text-[#003b1b]" : "text-[#6e5400]"
+          color === "green" ? "text-green-default" : "text-amber-dark",
         )}
       >
         {text}

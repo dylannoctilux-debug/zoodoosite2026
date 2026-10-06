@@ -1,0 +1,144 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+model User {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  /// @Validator.IsEmail()
+  email          String        @unique
+  /// @HideField({ output: true, input: false })
+  password       String?
+  firstName      String
+  lastName       String
+  createdAt      DateTime      @default(now())
+  deletedAt      DateTime?
+  updatedAt      DateTime      @updatedAt
+  permissions    String[]      @default([])
+}
+
+model Booking {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  /// @Validator.IsEmail()
+  email          String
+  phone          String
+  note           String
+  code           String
+  adults         Int           @default(1)
+  kids           Int           @default(0)
+  status         BookingStatus @default(PENDING)
+  start_time     DateTime
+  end_time       DateTime
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  CANCELLED
+}
+
+model Session {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  tokenHash String @unique
+  kind      String
+  userId    String? @db.ObjectId
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+}
+model BookingPolicy {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique
+  leadHours Int @default(18)
+  durationMinutes Int @default(90)
+  firstHour Int @default(9)
+  lastHour Int @default(16)
+}
+model SlotClosure {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  startTime DateTime @unique
+  reason String
+}
+model Contact {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  kind String
+  name String
+  email String
+  mobile String
+  company String?
+  jobTitle String?
+  position String?
+  note String?
+  fileId String? @db.ObjectId
+  status String @default("RECEIVED")
+  createdAt DateTime @default(now())
+}
+model FileAsset {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  storageKey String @unique
+  originalName String
+  mime String
+  size Int
+  createdAt DateTime @default(now())
+}
+model Submission {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique
+  subjectId String @db.ObjectId
+  kind String
+  payloadHash String
+  recordId String @db.ObjectId
+  createdAt DateTime @default(now())
+}
+model EmailOutbox {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  eventKey String @unique
+  payload Json
+  status String @default("PENDING")
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  lockedUntil DateTime?
+  leaseId String?
+  sentAt DateTime?
+  messageId String?
+  lastError String?
+  createdAt DateTime @default(now())
+}
+model AuditEvent {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  resourceId String @db.ObjectId
+  action String
+  createdAt DateTime @default(now())
+}
+model RateBucket {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique
+  count Int
+  expiresAt DateTime
+}
+
+model Upload {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  subjectId String @db.ObjectId
+  name String
+  size Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+model UploadPart {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique
+  uploadId String @db.ObjectId
+  part Int
+  storageKey String @unique
+  contentHash String
+}

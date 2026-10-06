@@ -20,6 +20,7 @@ const ActivityCard: FC<IActivityCardProps> = ({
           src={image}
           alt={title}
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           style={{
             objectFit: "contain",
           }}
@@ -29,7 +30,7 @@ const ActivityCard: FC<IActivityCardProps> = ({
         className="flex flex-col item-center
        lg:items-start justify-center lg:w-full pl-3 pt-6"
       >
-        <h1 className="text-2xl font-bold text-text-title">{title}</h1>
+        <h3 className="text-2xl font-bold text-text-title">{title}</h3>
         <div className="w-1/3 border my-2 border-[#14532D]" />
         <p className="text-xl text-text-description">{description}</p>
       </div>

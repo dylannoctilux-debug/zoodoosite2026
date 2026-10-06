@@ -41,8 +41,8 @@ const DotVariants = {
 
 const DotTransition = {
   duration: 0.5,
-  yoyo: Infinity,
-  ease: "easeInOut",
+  repeat: Infinity,
+  ease: "easeInOut" as const,
 };
 
 export default function Loading() {

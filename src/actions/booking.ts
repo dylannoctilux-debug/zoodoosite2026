@@ -1,100 +1,46 @@
 "use server";
-import { render } from "@react-email/render";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-const TZ = "Asia/Ho_Chi_Minh";
-
-import { prisma } from "@/prisma";
-import { TUpdateBookingSchema } from "@/schema/booking";
-import { sendEmail } from "@/actions/email";
-
-import BookingReceiveEmail from "@/emails/new-booking.template";
-import BookingConfirmEmail from "@/emails/confirm-booking.email";
-import { randomChar } from "@/lib/random-char";
-
-export async function getBookings({
-  startRange,
-  endRange,
-}: {
+import { requireStaff } from "@/server/auth";
+import { privateApi, ApiError } from "@/server/private-api";
+import type { Booking, TUpdateBookingSchema } from "../../shared/booking";
+function bookingDates(b: Booking): Booking {
+  return {
+    ...b,
+    start_time: new Date(b.start_time),
+    end_time: new Date(b.end_time),
+    createdAt: new Date(b.createdAt),
+    updatedAt: new Date(b.updatedAt),
+  };
+}
+async function attempt<T>(
+  operation: () => Promise<T>,
+): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
+  try {
+    return { ok: true, data: await operation() };
+  } catch (error) {
+    if (error instanceof ApiError) return { ok: false, error: error.message };
+    throw error;
+  }
+}
+export async function getBookings(range: {
   startRange: string;
   endRange: string;
 }) {
-  const bookings = await prisma.booking.findMany({
-    where: {
-      start_time: {
-        gte: startRange,
-      },
-      end_time: {
-        lte: endRange,
-      },
-    },
+  return attempt(async () => {
+    const token = await requireStaff("booking:read");
+    return (
+      await privateApi<Booking[]>(`/bookings?${new URLSearchParams(range)}`, {
+        token,
+      })
+    ).map(bookingDates);
   });
-  return bookings;
 }
-
 export async function getBooking({ id }: { id: string }) {
-  try {
-    const booking = await prisma.booking.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (!booking) {
-      throw new Error("Booking not found");
-    }
-    return booking;
-  } catch (err) {
-    throw new Error("Internal Server Error");
-  }
+  return bookingDates(
+    await privateApi<Booking>(`/bookings/${encodeURIComponent(id)}`, {
+      token: await requireStaff("booking:read"),
+    }),
+  );
 }
-
-export async function createBooking({
-  data,
-}: {
-  data: Omit<TUpdateBookingSchema, "status">;
-}) {
-  try {
-    const result = await prisma.booking.create({
-      data: {
-        ...data,
-        status: "PENDING",
-        code: randomChar(6),
-      },
-    });
-
-    const time = dayjs(result.start_time)
-      .tz(TZ)
-      .format("ddd, HH:mm DD-MM-YYYY");
-
-    const html = render(
-      BookingReceiveEmail({
-        preview: "Booking đã được tiếp nhận",
-        time,
-        adults: result.adults,
-        kids: result.kids,
-        validationCode: result.code,
-      }),
-      {
-        pretty: true,
-      }
-    );
-    await sendEmail({
-      to: [result.email],
-      bcc: ["booking@zoodoodalat.com", "cs@zoodoodalat.com"],
-      subject: "Booking đã được tiếp nhận",
-      html,
-    });
-
-    return result;
-  } catch (err) {
-    throw new Error("Internal Server Error");
-  }
-}
-
 export async function updateBooking({
   id,
   data,
@@ -102,60 +48,23 @@ export async function updateBooking({
   id: string;
   data: Partial<TUpdateBookingSchema>;
 }) {
-  try {
-    const result = await prisma.booking.update({
-      where: {
-        id,
-      },
-      data,
-    });
-    if (!result) {
-      throw new Error("Booking not found");
-    }
-
-    return result;
-  } catch (err) {
-    throw new Error("Internal Server Error");
-  }
-}
-
-export async function acceptBooking({ id }: { id: string }) {
-  try {
-    const result = await prisma.booking.update({
-      where: {
-        id,
-      },
-      data: {
-        status: "ACCEPTED",
-      },
-    });
-    if (!result) {
-      throw new Error("Booking not found");
-    }
-    const time = dayjs(result.start_time)
-      .tz(TZ)
-      .format("ddd, HH:mm DD-MM-YYYY");
-
-    const html = render(
-      BookingConfirmEmail({
-        preview: "✔ Confirm Booking",
-        time,
-        adults: result.adults,
-        kids: result.kids,
-        validationCode: result.code,
+  return attempt(async () =>
+    bookingDates(
+      await privateApi<Booking>(`/bookings/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        data,
+        token: await requireStaff("booking:update"),
       }),
-      {
-        pretty: true,
-      }
-    );
-    await sendEmail({
-      to: [result.email],
-      subject: "✔ Confirm Booking",
-      html,
-    });
-
-    return result;
-  } catch (err) {
-    throw new Error("Internal Server Error");
-  }
+    ),
+  );
+}
+export async function acceptBooking({ id }: { id: string }) {
+  return attempt(async () =>
+    bookingDates(
+      await privateApi<Booking>(`/bookings/${encodeURIComponent(id)}/accept`, {
+        method: "POST",
+        token: await requireStaff("booking:accept"),
+      }),
+    ),
+  );
 }

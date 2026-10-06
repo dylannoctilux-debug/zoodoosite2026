@@ -27,6 +27,7 @@ const ImageGrid33: React.FC<ImageGrid33Props> = ({
               src={image1}
               alt="ZooDoo animal image"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               style={{
                 objectFit: "contain",
               }}
@@ -37,6 +38,7 @@ const ImageGrid33: React.FC<ImageGrid33Props> = ({
               src={image2}
               alt="ZooDoo animal image"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               style={{
                 objectFit: "contain",
               }}
@@ -48,6 +50,7 @@ const ImageGrid33: React.FC<ImageGrid33Props> = ({
             src={image3}
             alt="ZooDoo animal image"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             style={{
               objectFit: "contain",
             }}
@@ -60,6 +63,7 @@ const ImageGrid33: React.FC<ImageGrid33Props> = ({
             src={image4}
             alt="ZooDoo animal image"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             style={{
               objectFit: "contain",
             }}
@@ -71,6 +75,7 @@ const ImageGrid33: React.FC<ImageGrid33Props> = ({
               src={image5}
               alt="ZooDoo animal image"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               style={{
                 objectFit: "contain",
               }}
@@ -81,6 +86,7 @@ const ImageGrid33: React.FC<ImageGrid33Props> = ({
               src={image6}
               alt="ZooDoo animal image"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               style={{
                 objectFit: "contain",
               }}

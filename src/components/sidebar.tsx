@@ -1,30 +1,51 @@
+import { logout } from "@/actions/session";
 import Link from "next/link";
-import { Calendar } from "lucide-react";
-
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ permissions }: { permissions: string[] }) {
+  const links = [
+    { permission: "booking:read", href: "/admin", label: "Lịch đặt vé" },
+    {
+      permission: "contact:read",
+      href: "/admin/ho-so",
+      label: "Liên hệ và hồ sơ",
+    },
+    {
+      permission: "outbox:read",
+      href: "/admin/email",
+      label: "Trạng thái email",
+    },
+  ];
   return (
-    <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40 h-[100vh]">
-      <div className="flex h-full flex-col gap-2">
-        <div className="flex h-[60px] items-center border-b px-6">
-          <Link className="flex items-center gap-2 font-semibold" href="#">
-            {/* <Package2Icon className="h-6 w-6" /> */}
-            <span className="">ZooDoo</span>
-          </Link>
-        </div>
-        <div className="flex-1 overflow-auto py-2">
-          <nav className="grid items-start px-4 text-sm font-medium">
+    <aside className="border-b lg:border-r bg-gray-50 lg:min-h-screen">
+      <Link
+        href={
+          links.find((l) => permissions.includes(l.permission))?.href ||
+          "/admin"
+        }
+        className="block p-6 font-bold text-lg"
+      >
+        ZooDoo
+      </Link>
+      <nav
+        aria-label="Quản trị"
+        className="flex flex-wrap gap-2 p-4 lg:flex-col"
+      >
+        {links
+          .filter((l) => permissions.includes(l.permission))
+          .map((l) => (
             <Link
-              className="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50"
-              href="/admin"
+              key={l.href}
+              href={l.href}
+              className="rounded px-3 py-3 hover:bg-gray-200"
             >
-              <Calendar />
-              Bookings
+              {l.label}
             </Link>
-          </nav>
-        </div>
-      </div>
-    </div>
+          ))}
+        <form action={logout}>
+          <button type="submit" className="px-3 py-3">
+            Đăng xuất
+          </button>
+        </form>
+      </nav>
+    </aside>
   );
 }

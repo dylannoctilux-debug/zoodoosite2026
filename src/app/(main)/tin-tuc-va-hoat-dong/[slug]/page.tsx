@@ -1,3 +1,4 @@
+import { richText, imageUrl } from "@/lib/content";
 import { notFound } from "next/navigation";
 
 import { POSTS_PER_PAGE } from "@/constants/contentful";
@@ -12,28 +13,18 @@ import BannerImage from "@/../public/assets/backgrounds/news/bg3.png";
 import { INewsItem, INewsSkeleton } from "@/types/contentful";
 import {
   getBlogPostsByCreatedAtService,
-  initContentfulClient,
+  getBlogPostBySlug,
 } from "@/lib/contentful";
 
-const fetchBlogPost = async (slug: string): Promise<INewsItem> => {
-  const queryOptions = {
-    content_type: "news" as "news",
-    "fields.slug[match]": slug,
-  };
-  const queryResult = await initContentfulClient.getEntries<INewsSkeleton>(
-    queryOptions
-  );
-  return queryResult.items[0];
-};
+export const dynamic = "force-dynamic";
 
 const NewsAndActivitiesPage = async ({
-  params: { slug },
+  params,
 }: {
-  params: {
-    slug: string;
-  };
+  params: Promise<{ slug: string }>;
 }) => {
-  const article = await fetchBlogPost(slug);
+  const { slug } = await params;
+  const article = await getBlogPostBySlug(slug);
   // get newest posts
   const newestPosts = await getBlogPostsByCreatedAtService(0, POSTS_PER_PAGE);
 
@@ -57,13 +48,33 @@ const NewsAndActivitiesPage = async ({
 
 export default NewsAndActivitiesPage;
 
-export async function generateStaticParams() {
-  const queryOptions = {
-    content_type: "news",
-    select: "fields.slug",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const article = await getBlogPostBySlug(slug);
+  if (!article)
+    return { title: "Không tìm thấy bài viết", robots: { index: false } };
+  const { title, description, coverImage } = article.fields;
+  return {
+    title,
+    description: richText(description).slice(0, 160),
+    alternates: { canonical: `/tin-tuc-va-hoat-dong/${slug}` },
+    openGraph: {
+      title,
+      description: richText(description).slice(0, 160),
+      url: `/tin-tuc-va-hoat-dong/${slug}`,
+      type: "article",
+      locale: "vi_VN",
+      images: [
+        imageUrl(
+          coverImage && "fields" in coverImage
+            ? coverImage.fields?.file?.url
+            : undefined,
+        ),
+      ],
+    },
   };
-  const articles = await initContentfulClient.getEntries(queryOptions);
-  return articles.items.map((article) => ({
-    slug: article.fields.slug,
-  }));
 }

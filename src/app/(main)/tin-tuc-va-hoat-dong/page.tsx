@@ -1,12 +1,10 @@
-import { FC } from "react";
+import { redirect } from "next/navigation";
+import { positivePage } from "@/lib/content";
 
 import { INewsSkeleton } from "@/types/contentful";
 import { POSTS_PER_PAGE } from "@/constants/contentful";
 
-import {
-  getBlogPostsByCreatedAtService,
-  initContentfulClient,
-} from "@/lib/contentful";
+import { getBlogPostsByCreatedAtService } from "@/lib/contentful";
 
 import NewCard from "@/components/Cards/NewCard";
 import CustomPagination from "@/components/common/Pagination";
@@ -17,33 +15,29 @@ import BannerImage from "@/../public/assets/backgrounds/news/bg1.png";
 import BG2 from "@/../public/assets/backgrounds/news/bg2.png";
 
 interface INewsAndActivitiesPageProps {
-  searchParams?: {
-    page?: string;
-  };
+  searchParams?: Promise<{ page?: string }>;
 }
 
 export const dynamic = "force-dynamic";
 export const revalidate = 10;
 
-const NewsAndActivitiesPage: FC<INewsAndActivitiesPageProps> = async ({
+const NewsAndActivitiesPage = async ({
   searchParams,
-}) => {
-  const currentPage = Number(searchParams?.page || "1");
+}: INewsAndActivitiesPageProps) => {
+  const currentPage = positivePage((await searchParams)?.page);
 
   const results = await getBlogPostsByCreatedAtService(
     currentPage,
-    POSTS_PER_PAGE
+    POSTS_PER_PAGE,
   );
 
-  const newestPost = await initContentfulClient.getEntries<INewsSkeleton>({
-    content_type: "news",
-    order: ["-sys.createdAt"],
-    limit: 1,
-  });
+  const newestPost = await getBlogPostsByCreatedAtService(1, 1);
 
   const totalPosts = results.total;
   const totalPages = Math.ceil((totalPosts || 0) / POSTS_PER_PAGE);
 
+  if (currentPage > Math.max(1, totalPages))
+    redirect(`/tin-tuc-va-hoat-dong?page=${Math.max(1, totalPages)}`);
   return (
     <div className="flex flex-col">
       <MainContainer background={BannerImage.src}>
@@ -68,7 +62,7 @@ const NewsAndActivitiesPage: FC<INewsAndActivitiesPageProps> = async ({
           </div>
           <CustomPagination
             currentPage={currentPage}
-            totalPages={totalPages}
+            totalPosts={totalPosts}
             postsPerPage={POSTS_PER_PAGE}
           />
         </div>
