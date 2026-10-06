@@ -35,7 +35,7 @@ const HiringDetails: FC<IHiringDetailsProps> = (job) => {
       year: "numeric",
       month: "long",
       day: "numeric",
-    }
+    },
   );
 
   return (
@@ -128,10 +128,11 @@ const HiringDetails: FC<IHiringDetailsProps> = (job) => {
 };
 
 const HiringDetailPage = async ({
-  params: { slug },
+  params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) => {
+  const { slug } = await params;
   const hiringJob = await getHiringJobBySlug(slug);
   const hiringJobs = await getHiringJobs();
 
@@ -197,10 +198,18 @@ const HiringDetailPage = async ({
 
 export default HiringDetailPage;
 
-export async function generateStaticParams() {
-  const jobs = await getHiringJobs();
-
-  return jobs.items.map((article) => ({
-    slug: article.fields.slug,
-  }));
+export const dynamic = "force-dynamic";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const job = await getHiringJobBySlug(slug);
+  return job
+    ? {
+        title: job.fields.jobTitle,
+        alternates: { canonical: `/tuyen-dung/${slug}` },
+      }
+    : { title: "Không tìm thấy vị trí", robots: { index: false } };
 }

@@ -1,0 +1,105 @@
+# Docker Swarm template. No API/database port is published.
+# Default frontend remains Vercel. Enable the optional frontend only for a container rehearsal.
+version: "3.8"
+services:
+  api:
+    image: ${ZOODOO_API_IMAGE}
+    networks: [api_private, db_private]
+    volumes: [uploads:/data/uploads]
+    environment:
+      API_SERVICE_TOKEN_FILE: /run/secrets/api_service_token
+      MONGODB_URI_FILE: /run/secrets/mongodb_uri
+      EMAIL_SMTP_HOST_FILE: /run/secrets/smtp_host
+      EMAIL_SMTP_PORT: "587"
+      EMAIL_SMTP_USER_FILE: /run/secrets/smtp_user
+      EMAIL_SMTP_PASSWORD_FILE: /run/secrets/smtp_password
+      EMAIL_FROM_FILE: /run/secrets/email_from
+      OWNER_EMAIL_FILE: /run/secrets/owner_email
+    secrets:
+      [
+        api_service_token,
+        mongodb_uri,
+        smtp_host,
+        smtp_user,
+        smtp_password,
+        email_from,
+        owner_email,
+      ]
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.labels.zoodoo_data == true]
+      restart_policy:
+        condition: on-failure
+  mongodb:
+    image: mongo:7.0
+    entrypoint: [/bin/sh, /run/configs/mongo-entrypoint.sh]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/mongo_root_user
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo_root_password
+    secrets: [mongo_root_user, mongo_root_password, mongo_repl_key]
+    configs:
+      - source: mongo_entrypoint
+        target: /run/configs/mongo-entrypoint.sh
+    volumes: [database:/data/db, database_config:/data/configdb]
+    networks: [db_private]
+    deploy:
+      replicas: 1
+      endpoint_mode: dnsrr
+      placement:
+        constraints: [node.labels.zoodoo_data == true]
+  frontend:
+    image: ${ZOODOO_FRONTEND_IMAGE}
+    ports:
+      - target: 3000
+        published: 3000
+    networks: [edge, api_private]
+    environment:
+      SITE_URL: https://zoodoo.vn
+      PRIVATE_API_URL: http://api:4000
+      API_SERVICE_TOKEN_FILE: /run/secrets/api_service_token
+      CONTENTFUL_SPACE_ID_FILE: /run/secrets/contentful_space_id
+      CONTENTFUL_ACCESS_TOKEN_FILE: /run/secrets/contentful_access_token
+    secrets: [api_service_token, contentful_space_id, contentful_access_token]
+    deploy:
+      replicas: 0
+networks:
+  edge:
+    driver: overlay
+  api_private:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: "true"
+  db_private:
+    driver: overlay
+    internal: true
+    attachable: true
+    driver_opts:
+      encrypted: "true"
+volumes:
+  uploads:
+    external: true
+    name: zoodoo_uploads
+  database:
+    external: true
+    name: zoodoo_database
+  database_config:
+    external: true
+    name: zoodoo_database_config
+configs:
+  mongo_entrypoint:
+    file: ./mongo-entrypoint.sh
+secrets:
+  api_service_token: { external: true }
+  mongodb_uri: { external: true }
+  smtp_host: { external: true }
+  smtp_user: { external: true }
+  smtp_password: { external: true }
+  email_from: { external: true }
+  owner_email: { external: true }
+  mongo_root_user: { external: true }
+  mongo_root_password: { external: true }
+  mongo_repl_key: { external: true }
+  contentful_space_id: { external: true }
+  contentful_access_token: { external: true }

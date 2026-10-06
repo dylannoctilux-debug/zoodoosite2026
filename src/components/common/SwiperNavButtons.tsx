@@ -7,10 +7,14 @@ export const SwiperNavButtons = () => {
   return (
     <div className="swiper-nav-btns w-full flex flex-row justify-center items-center space-x-8">
       <button
-        className="custom-swiper-prev outline-none"
+        type="button"
+        aria-label="Ảnh trước"
+        className="custom-swiper-prev"
         onClick={() => swiper.slidePrev()}
       />
       <button
+        type="button"
+        aria-label="Ảnh sau"
         className="custom-swiper-next"
         onClick={() => swiper.slideNext()}
       />

@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="bg-gray-200 w-full px-16 md:px-0 h-screen flex items-center justify-center">
@@ -11,7 +12,7 @@ export default function NotFound() {
         <p className="text-gray-500 mt-4 pb-4 border-b-2 text-center">
           Xin lỗi, trang bạn đang tìm kiếm không thể tìm thấy.
         </p>
-        <a
+        <Link
           href="/"
           className="flex items-center space-x-2 bg-green-light hover:bg-green-500 text-gray-100 px-4 py-2 mt-6 rounded transition duration-150"
           title="Return Home"
@@ -23,13 +24,13 @@ export default function NotFound() {
             fill="currentColor"
           >
             <path
-              fill-rule="evenodd"
+              fillRule="evenodd"
               d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-              clip-rule="evenodd"
+              clipRule="evenodd"
             ></path>
           </svg>
           <span>Return Home</span>
-        </a>
+        </Link>
       </div>
     </div>
   );

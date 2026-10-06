@@ -1,3 +1,4 @@
+import { imageUrl } from "@/lib/content";
 import Image from "next/image";
 import { FC } from "react";
 
@@ -24,9 +25,9 @@ const NewDetailsBanner: FC<INewDetailsBannerProps> = ({ post }) => {
             <div className="pb-8">
               <BackButton />
             </div>
-            <div className="text-3xl lg:text-5xl text-white font-bold leading-[72px]">
+            <h1 className="text-3xl lg:text-5xl text-white font-bold leading-tight">
               {title}
-            </div>
+            </h1>
             <div className="block lg:hidden py-4 text-white text-base text-end font-medium"></div>
           </div>
           <div className="hidden lg:flex lg:flex-col space-y-4">
@@ -49,7 +50,11 @@ const NewDetailsBanner: FC<INewDetailsBannerProps> = ({ post }) => {
         </div>
         <div className="flex flex-row justify-center items-center lg:col-span-1">
           <Image
-            src={`https:${post?.fields?.coverImage?.fields?.file?.url}`}
+            src={imageUrl(
+              post.fields.coverImage && "fields" in post.fields.coverImage
+                ? post.fields.coverImage.fields?.file?.url
+                : undefined,
+            )}
             layout="responsive"
             width={400}
             height={400}

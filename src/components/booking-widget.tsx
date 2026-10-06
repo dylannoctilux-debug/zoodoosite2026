@@ -1,519 +1,332 @@
 "use client";
-import { FC, ReactNode, useState, useMemo, useEffect } from "react";
-import clsx from "clsx";
 import {
-  SewingPinFilledIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@radix-ui/react-icons";
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FC,
+  type ReactNode,
+} from "react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import dayjs from "dayjs";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "./atom/button";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "./atom/dialog";
-import { ScrollArea } from "./atom/scroll-area";
 import { Label } from "./atom/label";
 import { Input } from "./atom/input";
-import Spinner from "./common/spinner";
-import { ToastAction } from "./atom/toast";
 import { useToast } from "./atom/use-toast";
 import { cn } from "@/lib/utils";
-import { createBooking } from "@/actions/booking";
-
-type TBookingWidget = {
+import { createBooking, getSlots } from "@/actions/public-booking";
+import { bookingFields, calendarDays, zooDate } from "../../shared/booking";
+const schema = bookingFields.omit({ start_time: true, end_time: true });
+type Fields = z.input<typeof schema>;
+type Slot = { start: string; start_time: string };
+type Props = {
   className: string;
   trigger: ReactNode;
   title: string;
   description: string;
   address: string;
 };
-
-type TCalendar = {
-  selectedDate: Date;
-  setSelectedDate: (d: Date) => void;
-  notAvailableDate: string[];
-};
-
-type TCalendarDay = {
-  date: string;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isSelected: boolean;
-};
-
-type TSlot = {
-  id: number;
-  start: string;
-  start_time: string;
-};
-
-const schema = z.object({
-  name: z.string().min(1, "Cần nhập"),
-  email: z.string().email("Cần nhập").min(1, "Cần nhập"),
-  phone: z.string().min(1, "Cần nhập"),
-  note: z.string().optional(),
-  adults: z.string().min(1, "Cần nhập"),
-  kids: z.string().min(1, "Cần nhập"),
-});
-
-function generateCalendarDay(
-  first_of_month: dayjs.Dayjs,
-  _selectedDate: dayjs.Dayjs,
-  today: dayjs.Dayjs
-): TCalendarDay[] {
-  const weekday_of_first_of_month = first_of_month.day();
-
-  const start_day = first_of_month.subtract(
-    weekday_of_first_of_month - 1,
-    "day"
-  );
-
-  const last_day = first_of_month
-    .add(1, "month")
-    .set("date", 1)
-    .subtract(1, "day");
-
-  const total_days_in_month = last_day.diff(start_day, "day");
-
-  const days: TCalendarDay[] = [];
-  const loopLength = Math.ceil(total_days_in_month / 7) * 7;
-  for (let i = 0; i < loopLength; i++) {
-    const current = start_day.add(i, "day");
-    days.push({
-      date: current.format("YYYY-MM-DD"),
-      isCurrentMonth: current.isSame(first_of_month, "month"),
-      isToday: current.isSame(today, "day"),
-      isSelected: current.isSame(_selectedDate, "date"),
-    });
-  }
-  return days;
-}
-
-const Calendar: FC<TCalendar> = ({
-  selectedDate,
-  setSelectedDate,
-  notAvailableDate,
-}) => {
-  const _selectedDate = useMemo(() => dayjs(selectedDate), [selectedDate]);
-  const [viewMonth, setViewMonth] = useState(_selectedDate.set("date", 1));
-  const today = dayjs();
-  const days = useMemo(
-    () => generateCalendarDay(viewMonth, _selectedDate, today),
-    [viewMonth, _selectedDate, today]
-  );
-
-  const _notAvailableDate = new Set(notAvailableDate);
-
-  return (
-    <div>
-      <div className="flex items-center">
-        <span className="flex-auto text-sm font-semibold text-gray-900">
-          {viewMonth.format("MMM, YYYY")}
-        </span>
-        <button
-          type="button"
-          className="-my-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
-          onClick={() => setViewMonth(viewMonth.subtract(1, "month"))}
-        >
-          <span className="sr-only">Previous month</span>
-          <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className="-my-1.5 -mr-1.5 ml-2 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
-          onClick={() => setViewMonth(viewMonth.add(1, "month"))}
-        >
-          <span className="sr-only">Next month</span>
-          <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-        </button>
-      </div>
-      <div className="mt-10 grid grid-cols-7 text-center text-md font-bold leading-6 text-green-default">
-        <div>T2</div>
-        <div>T3</div>
-        <div>T4</div>
-        <div>T5</div>
-        <div>T6</div>
-        <div>T7</div>
-        <div>CN</div>
-      </div>
-      <div className="mt-2 grid grid-cols-7 text-sm">
-        {days.map((day, dayIdx) => {
-          const isNotAvailable =
-            today.isAfter(day.date) || _notAvailableDate.has(day.date);
-          return (
-            <div
-              key={day.date}
-              className={clsx(dayIdx > 6 && "border-t border-gray-200", "py-2")}
-            >
-              <button
-                type="button"
-                disabled={isNotAvailable}
-                onClick={() => {
-                  setSelectedDate(dayjs(day.date).toDate());
-                  setViewMonth(dayjs(day.date).set("date", 1));
-                }}
-                className={clsx(
-                  isNotAvailable && "opacity-50 pointer-events-none",
-                  day.isSelected && "text-white",
-                  !day.isSelected && day.isToday && "text-green-light",
-                  !day.isSelected &&
-                    !day.isToday &&
-                    day.isCurrentMonth &&
-                    "text-gray-900",
-                  !day.isSelected &&
-                    !day.isToday &&
-                    !day.isCurrentMonth &&
-                    "text-gray-400",
-                  day.isSelected && day.isToday && "bg-gray-900",
-                  day.isSelected && !day.isToday && "bg-gray-900",
-                  !day.isSelected && "hover:bg-gray-200",
-                  (day.isSelected || day.isToday) && "font-semibold",
-                  "mx-auto flex h-8 w-8 items-center justify-center rounded-full"
-                )}
-              >
-                <p>
-                  <time dateTime={day.date}>
-                    {_notAvailableDate.has(day.date) ? (
-                      <span className="text-destructive">Full</span>
-                    ) : (
-                      day.date.split("-").pop()
-                    )}
-                  </time>
-                </p>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-const Timeslot: FC<{
-  date: string;
-  slots: TSlot[];
-  value: string | undefined;
-  onChange: (d: string) => void;
-}> = ({ slots, onChange, date }) => (
-  <section className="mt-12 md:mt-0 md:pl-8">
-    <span className="text-base font-semibold leading-6 text-gray-900">
-      Schedule for <time dateTime="2022-01-21">{date}</time> (Timezone: GMT+7)
-    </span>
-    <ol className="mt-4 space-y-1 text-sm leading-6 text-gray-500">
-      {slots.length > 0 ? (
-        slots.map((slot) => (
-          <Button
-            variant="outline"
-            className="w-full"
-            key={slot.id}
-            onClick={() => onChange(slot.start_time)}
-          >
-            {slot.start}
-          </Button>
-        ))
-      ) : (
-        <span className="text-destructive flex items-center justify-center">
-          Không còn các suất tham quan
-        </span>
-      )}
-    </ol>
-  </section>
-);
-
-function generateSlots(date: Date): TSlot[] {
-  const NotAvailable = new Set([
-    "2024-04-29T02:00:00.000Z",
-    "2024-04-29T03:00:00.000Z",
-    "2024-04-29T04:00:00.000Z",
-    "2024-04-29T05:00:00.000Z",
-    "2024-04-29T06:00:00.000Z",
-    "2024-04-29T07:00:00.000Z",
-    "2024-04-29T08:00:00.000Z",
-    "2024-04-29T09:00:00.000Z",
-    "2024-04-29T10:00:00.000Z",
-    "2024-04-30T02:00:00.000Z",
-    "2024-04-30T03:00:00.000Z",
-    "2024-04-30T04:00:00.000Z",
-    "2024-04-30T05:00:00.000Z",
-    "2024-04-30T06:00:00.000Z",
-    "2024-04-30T07:00:00.000Z",
-    "2024-04-30T08:00:00.000Z",
-    "2024-04-30T09:00:00.000Z",
-    "2024-04-30T10:00:00.000Z",
-  ]);
-
-  const slots = [];
-  const HourOffsetFromNow = dayjs()
-    .add(18, "hour")
-    .set("minute", 0)
-    .set("second", 0)
-    .set("millisecond", 0);
-  const beginningOfDay = dayjs(date)
-    .set("hour", 9)
-    .set("minute", 0)
-    .set("second", 0)
-    .set("millisecond", 0);
-  let start = HourOffsetFromNow.isAfter(beginningOfDay)
-    ? HourOffsetFromNow
-    : beginningOfDay;
-  while (start.get("hour") < 17) {
-    if (!NotAvailable.has(start.toISOString())) {
-      slots.push({
-        id: start.get("hour"),
-        start: start.format("HH:mm"),
-        start_time: start.toISOString(),
-      });
-    }
-    start = start.add(1, "hour");
-  }
-
-  return slots;
-}
-
-export const BookingWidget: FC<TBookingWidget> = ({
+export const BookingWidget: FC<Props> = ({
   className,
-  title,
-  description,
-  address,
   trigger,
+  title,
+  address,
+  description,
 }) => {
-  const [selectedDate, setSelectedDate] = useState(
-    dayjs().add(1, "day").toDate()
-  );
-
-  const [slots, setSlots] = useState({
-    isLoading: true,
-    data: [] as TSlot[],
-  });
-
-  const [selectedSlot, setSelectedSlot] = useState<string | undefined>();
+  const prefix = useId();
+  const [open, setOpen] = useState(false),
+    [date, setDate] = useState(() =>
+      zooDate().add(1, "day").format("YYYY-MM-DD"),
+    );
+  const [month, setMonth] = useState(() => date.slice(0, 7)),
+    [slots, setSlots] = useState<Slot[]>([]);
+  const [duration, setDuration] = useState(90),
+    [selected, setSelected] = useState<Slot>();
+  const [loading, setLoading] = useState(false),
+    [error, setError] = useState(""),
+    [reload, setReload] = useState(0);
+  const key = useRef<string | undefined>(undefined),
+    signature = useRef("");
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
-    getValues,
-    formState: { errors },
-  } = useForm({
-    mode: "onChange",
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<Fields>({
     resolver: zodResolver(schema),
+    defaultValues: { adults: 1, kids: 0, note: "" },
   });
-
-  const [open, setOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { toast } = useToast();
-
   useEffect(() => {
-    const genericSlot = generateSlots(selectedDate);
-    setSlots({ isLoading: false, data: genericSlot });
-  }, [selectedDate]);
-
-  const notAvailableDate = ["2024-04-29", "2024-04-30"];
-
+    if (!open) return;
+    let active = true;
+    setLoading(true);
+    setError("");
+    setSelected(undefined);
+    setSlots([]);
+    getSlots(date)
+      .then((r) => {
+        if (!r.ok) throw new Error(r.error);
+        if (active) {
+          setSlots(r.slots);
+          setDuration(r.durationMinutes);
+        }
+      })
+      .catch((e) => {
+        if (active)
+          setError(
+            e.message || "Chưa tải được suất tham quan. Vui lòng thử lại",
+          );
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [open, date, reload]);
+  const submit = handleSubmit(async (fields) => {
+    if (!selected) return;
+    setError("");
+    const data = {
+      ...schema.parse(fields),
+      start_time: new Date(selected.start_time),
+      end_time: new Date(+new Date(selected.start_time) + duration * 60000),
+    };
+    const current = JSON.stringify(data);
+    if (current !== signature.current) {
+      key.current = crypto.randomUUID();
+      signature.current = current;
+    }
+    try {
+      const result = await createBooking({ data, requestKey: key.current! });
+      if (!result.ok) throw new Error(result.error);
+      toast({
+        title: `Đã tiếp nhận yêu cầu ${result.code}`,
+        description: `${zooDate(selected.start_time).format("HH:mm DD/MM/YYYY")} — ZooDoo sẽ liên hệ xác nhận. Email đang chờ gửi.`,
+      });
+      setOpen(false);
+      reset();
+      key.current = undefined;
+      signature.current = "";
+    } catch (e) {
+      setError(
+        (e as Error).message ||
+          "Chưa gửi được yêu cầu. Thông tin vẫn được giữ để thử lại",
+      );
+    }
+  });
+  const fields = [
+    { name: "name", label: "Họ và tên", type: "text", autoComplete: "name" },
+    { name: "email", label: "Email", type: "email", autoComplete: "email" },
+    { name: "phone", label: "Số điện thoại", type: "tel", autoComplete: "tel" },
+    { name: "adults", label: "Người lớn", type: "number", min: 1 },
+    { name: "kids", label: "Trẻ em", type: "number", min: 0 },
+    { name: "note", label: "Ghi chú (nếu có)", type: "text" },
+  ] as const;
   return (
     <Dialog
-      onOpenChange={(e) => {
-        setSelectedSlot(undefined);
-        setOpen(e);
-      }}
       open={open}
+      onOpenChange={(v) => {
+        if (!isSubmitting) {
+          setOpen(v);
+          if (!v) setSelected(undefined);
+        }
+      }}
     >
       <DialogTrigger asChild className={className}>
         {trigger}
       </DialogTrigger>
-
-      <DialogContent
-        className={cn(
-          "sm:max-w-[425px] border-4 bg-white",
-          !selectedSlot
-            ? "md:max-w-[768px] lg:max-w-[1040px]"
-            : "md:max-w-[568px] lg:max-w-[750px]"
-        )}
-      >
-        <ScrollArea className="max-h-[50vh] no-scrollbar">
-          <div
-            className={cn(
-              "grid grid-cols-1 md:grid-cols-5 gap-8 md:divide-x md:divide-gray-200",
-              !selectedSlot ? "md:grid-cols-5" : "md:grid-cols-3"
-            )}
-          >
-            <div>
-              <DialogTitle className="mb-4">
-                <span className="scroll-m-20 text-md lg:text-xl">{title}</span>
-              </DialogTitle>
-              <ScrollArea className="h-60 mb-4">
-                <p className="text-left whitespace-pre-wrap overflow-hidden text-sm">
-                  {description}
-                </p>
-              </ScrollArea>
-
-              <div className="flex">
-                <SewingPinFilledIcon width="36" height="36" />
-                <p className="ml-2 text-sm">{address}</p>
-              </div>
-            </div>
-
-            {!selectedSlot ? (
-              <>
-                <div className="col-span-2 md:pl-8">
-                  <Calendar
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    notAvailableDate={notAvailableDate}
-                  />
-                </div>
-                <div className="col-span-2 pr-4">
-                  <Timeslot
-                    date={selectedDate.toLocaleDateString()}
-                    slots={slots.data}
-                    value={selectedSlot}
-                    onChange={(d) => setSelectedSlot(d)}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="col-span-2 md:pl-8 grid gap-1.5 pr-4">
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="picture">Họ và tên</Label>
-                  <Input
-                    type="text"
-                    placeholder="name"
-                    required
-                    {...register("name")}
-                  />
-                  {errors.name && (
-                    <p className="text-red-500">
-                      {String(errors.name.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="picture">Email</Label>
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    required
-                    {...register("email")}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500">
-                      {String(errors.email.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="picture">Số điện thoại</Label>
-                  <Input
-                    type="text"
-                    placeholder="phone"
-                    required
-                    {...register("phone")}
-                  />
-                  {errors.phone && (
-                    <p className="text-red-500">
-                      {String(errors.phone.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="picture">Ghi chú</Label>
-                  <Input type="text" placeholder="note" {...register("note")} />
-                  {errors.note && (
-                    <p className="text-red-500">
-                      {String(errors.note.message)}
-                    </p>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="grid w-full max-w-sm gap-1.5">
-                    <Label htmlFor="picture">Người lớn</Label>
-                    <Input
-                      type="number"
-                      placeholder="adults"
-                      required
-                      {...register("adults")}
-                    />
-                    {errors.adults && (
-                      <p className="text-red-500">
-                        {String(errors.adults.message)}
-                      </p>
-                    )}
-                  </div>
-                  <div className="grid w-full max-w-sm gap-1.5">
-                    <Label htmlFor="picture">Trẻ em</Label>
-                    <Input
-                      type="number"
-                      placeholder="kids"
-                      required
-                      {...register("kids")}
-                    />
-                    {errors.kids && (
-                      <p className="text-red-500">
-                        {String(errors.kids.message)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-row justify-end">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setSelectedSlot(undefined)}
-                    disabled={isSubmitting}
-                  >
-                    Trở lại
-                  </Button>
-                  <Button
-                    disabled={isSubmitting}
-                    onClick={handleSubmit(async () => {
-                      setIsSubmitting(true);
-
-                      return await createBooking({
-                        data: {
-                          name: getValues("name"),
-                          email: getValues("email"),
-                          phone: getValues("phone"),
-                          note: getValues("note"),
-                          adults: Number(getValues("adults")),
-                          kids: Number(getValues("kids")),
-                          start_time: dayjs(selectedSlot).toDate(),
-                          end_time: dayjs(selectedSlot)
-                            .add(90, "minute")
-                            .toDate(),
-                        },
-                      })
-                        .then(() => {
-                          setIsSubmitting(false);
-                          setOpen(false);
-                          toast({
-                            title: `Booking: ${getValues("name")}`,
-                            description: dayjs(selectedSlot).format(
-                              "ddd DD-MM-YYYY HH:mm"
-                            ),
-                            action: (
-                              <ToastAction altText="Goto schedule to undo">
-                                Undo
-                              </ToastAction>
-                            ),
-                          });
-                        })
-                        .catch((e) => {
-                          setIsSubmitting(false);
-                        });
-                    })}
-                  >
-                    {isSubmitting ? <Spinner /> : "Xác nhận"}
-                  </Button>
-                </div>
-              </div>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-3xl max-h-[90dvh] overflow-y-auto overscroll-contain bg-white p-5 sm:p-8">
+        <DialogTitle className="text-xl sm:text-2xl">{title}</DialogTitle>
+        <DialogDescription className="text-base">
+          Đặt trước ít nhất 18 giờ. Thời gian theo giờ Việt Nam; yêu cầu cần
+          được ZooDoo xác nhận.
+        </DialogDescription>
+        <p className="text-sm text-gray-600">{address}</p>
+        <details className="text-sm text-gray-600">
+          <summary className="cursor-pointer py-2">Lưu ý khi tham quan</summary>
+          <p className="whitespace-pre-wrap">{description}</p>
+        </details>
+        {error && (
+          <div role="alert" className="text-destructive">
+            <p>{error}</p>
+            {!selected && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setReload((n) => n + 1)}
+              >
+                Thử tải lại
+              </Button>
             )}
           </div>
-        </ScrollArea>
+        )}
+        {!selected ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section aria-label="Chọn ngày tham quan">
+              <div className="flex justify-between items-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  aria-label="Tháng trước"
+                  onClick={() =>
+                    setMonth(
+                      dayjs(`${month}-01`)
+                        .subtract(1, "month")
+                        .format("YYYY-MM"),
+                    )
+                  }
+                >
+                  <ChevronLeftIcon />
+                </Button>
+                <h2 className="font-semibold" aria-live="polite">
+                  Tháng {dayjs(`${month}-01`).format("MM/YYYY")}
+                </h2>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  aria-label="Tháng sau"
+                  onClick={() =>
+                    setMonth(
+                      dayjs(`${month}-01`).add(1, "month").format("YYYY-MM"),
+                    )
+                  }
+                >
+                  <ChevronRightIcon />
+                </Button>
+              </div>
+              <div
+                className="grid grid-cols-7 text-center text-sm pt-4"
+                aria-hidden="true"
+              >
+                {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map((d) => (
+                  <span key={d}>{d}</span>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-y-2 pt-2">
+                {calendarDays(month).map((d) => (
+                  <button
+                    type="button"
+                    key={d}
+                    aria-label={`Ngày ${dayjs(d).format("DD/MM/YYYY")}`}
+                    aria-pressed={date === d}
+                    disabled={d < zooDate().format("YYYY-MM-DD")}
+                    onClick={() => {
+                      setDate(d);
+                      setMonth(d.slice(0, 7));
+                    }}
+                    className={cn(
+                      "min-h-11 min-w-0 rounded-md disabled:opacity-35 hover:bg-gray-100",
+                      d.slice(0, 7) !== month && "text-gray-500",
+                      d === date &&
+                        "bg-green-default text-white hover:bg-green-default",
+                    )}
+                  >
+                    {Number(d.slice(-2))}
+                  </button>
+                ))}
+              </div>
+            </section>
+            <section aria-busy={loading}>
+              <h2 className="font-semibold mb-4">
+                Suất ngày {dayjs(date).format("DD/MM/YYYY")}
+              </h2>
+              {loading ? (
+                <p role="status">Đang tải suất tham quan…</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {slots.map((s) => (
+                    <Button
+                      key={s.start_time}
+                      type="button"
+                      variant="outline"
+                      onClick={() => setSelected(s)}
+                    >
+                      {s.start}
+                    </Button>
+                  ))}
+                </div>
+              )}
+              {!loading && !error && !slots.length && (
+                <p>
+                  Hiện không có suất phù hợp cho ngày này. Vui lòng chọn ngày
+                  khác.
+                </p>
+              )}
+            </section>
+          </div>
+        ) : (
+          <form onSubmit={submit} className="space-y-5">
+            <h2 className="font-semibold">
+              {zooDate(selected.start_time).format("HH:mm — DD/MM/YYYY")} (giờ
+              Việt Nam)
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {fields.map((f) => {
+                const name = f.name;
+                const fieldId = `${prefix}-${name}`;
+                return (
+                  <div
+                    key={name}
+                    className={name === "note" ? "sm:col-span-2" : ""}
+                  >
+                    <Label htmlFor={fieldId}>{f.label}</Label>
+                    <Input
+                      id={fieldId}
+                      type={f.type}
+                      autoComplete={
+                        "autoComplete" in f ? f.autoComplete : undefined
+                      }
+                      min={"min" in f ? f.min : undefined}
+                      step={f.type === "number" ? 1 : undefined}
+                      required={name !== "note"}
+                      disabled={isSubmitting}
+                      aria-invalid={!!errors[name]}
+                      aria-describedby={
+                        errors[name] ? `${fieldId}-error` : undefined
+                      }
+                      {...register(name, {
+                        valueAsNumber: f.type === "number",
+                      })}
+                    />
+                    {errors[name] && (
+                      <p
+                        id={`${fieldId}-error`}
+                        className="text-destructive text-sm mt-1"
+                      >
+                        {errors[name]?.message}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={isSubmitting}
+                onClick={() => setSelected(undefined)}
+              >
+                Đổi ngày/giờ
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Đang gửi…" : "Gửi yêu cầu đặt vé"}
+              </Button>
+            </div>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );

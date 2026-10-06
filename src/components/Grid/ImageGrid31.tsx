@@ -22,6 +22,7 @@ const ImageGrid31: FC<ImageGrid13Props> = ({
             src={image1}
             alt="ZooDoo animals image"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             style={{
               objectFit: "contain",
             }}
@@ -33,6 +34,7 @@ const ImageGrid31: FC<ImageGrid13Props> = ({
               src={image2}
               alt="ZooDoo animals image"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               style={{
                 objectFit: "contain",
               }}
@@ -43,6 +45,7 @@ const ImageGrid31: FC<ImageGrid13Props> = ({
               src={image3}
               alt="ZooDoo animals image"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               style={{
                 objectFit: "contain",
               }}
@@ -55,6 +58,7 @@ const ImageGrid31: FC<ImageGrid13Props> = ({
           src={image4}
           alt="ZooDoo animal image"
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           style={{
             objectFit: "contain",
           }}

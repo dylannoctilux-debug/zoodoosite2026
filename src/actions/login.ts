@@ -1,52 +1,38 @@
 "use server";
-import { z } from "zod";
 import { redirect } from "next/navigation";
-
-import { prisma } from "@/prisma";
-import { User } from "@prisma/client";
-import { comparePwd } from "@/lib/hash.util";
-import { setSession } from "./session";
-
-const schema = z.object({
-  email: z
-    .string({
-      invalid_type_error: "Invalid Email",
-    })
-    .trim()
-    .toLowerCase(),
-  password: z.string().trim().min(1, { message: "Required" }),
-});
-
-export async function login(
-  formData: FormData
-): Promise<{ token: string; user: User }> {
-  const data = {
-    email: formData.get("email"),
-    password: formData.get("password"),
-  };
-  const validatedFields = schema.parse(data);
-  if (!validatedFields) {
-    throw new Error("Please enter a valid email");
+import { privateApi, ApiError } from "@/server/private-api";
+import { saveStaffSession, type Identity } from "@/server/auth";
+export async function login(formData: FormData) {
+  let destination = "/admin";
+  try {
+    const session = await privateApi<{ token: string; expiresAt: string }>(
+      "/sessions/login",
+      {
+        method: "POST",
+        data: {
+          email: formData.get("email"),
+          password: formData.get("password"),
+        },
+      },
+    );
+    const user = await privateApi<Identity>("/sessions/me", {
+      token: session.token,
+    });
+    destination = user.permissions.includes("booking:read")
+      ? "/admin"
+      : user.permissions.includes("contact:read")
+        ? "/admin/ho-so"
+        : user.permissions.includes("outbox:read")
+          ? "/admin/email"
+          : "/admin";
+    await saveStaffSession(session);
+  } catch (e) {
+    return {
+      error:
+        e instanceof ApiError
+          ? e.message
+          : "Chưa đăng nhập được. Vui lòng thử lại",
+    };
   }
-  const user = await prisma.user.findUnique({
-    where: { email: validatedFields.email },
-  });
-
-  if (!user) {
-    throw new Error("Email or password is either incorrect");
-  }
-  const isVerified = await comparePwd(
-    validatedFields.password,
-    user?.password!
-  );
-
-  if (!isVerified) {
-    throw new Error("Email or password is either incorrect");
-  }
-
-  const payload = {
-    login: user.id,
-  };
-  await setSession(payload);
-  return redirect("/admin");
+  redirect(destination);
 }

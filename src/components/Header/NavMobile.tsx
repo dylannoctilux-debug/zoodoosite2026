@@ -1,161 +1,79 @@
-import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
-import { Squash as Hamburger } from "hamburger-react";
+"use client";
+import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-
-import useClickAway from "@/hooks/useClickAway";
-
-export const NavMobile = () => {
-  const [isOpen, setOpen] = useState(false);
-  const [colorChange, setColorchange] = useState<boolean>(false);
-
-  const ref = useRef(null);
-  const router = usePathname();
-  const isHomeScreen = router === "/";
-  const shouldShowTransparent = isHomeScreen && !colorChange;
-
-  useClickAway(ref, () => setOpen(false));
-
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/atom/dialog";
+export function NavMobile() {
+  const [open, setOpen] = useState(false),
+    [scrolled, setScrolled] = useState(false);
+  const path = usePathname();
   useEffect(() => {
-    const changeNavbarColor = () => {
-      if (window.scrollY > 0) {
-        setColorchange(true);
-      } else {
-        setColorchange(false);
-      }
-    };
-    window.addEventListener("scroll", changeNavbarColor);
-    return () => {
-      window.removeEventListener("scroll", changeNavbarColor);
-    };
+    const update = () => setScrolled(window.scrollY > 0);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, []);
-
-  useEffect(() => {
-    // prevent scrolling when mobile menu is open
-    if (isOpen) {
-      document.body.classList.add("overflow-hidden");
-    } else {
-      document.body.classList.remove("overflow-hidden");
-    }
-  }, [isOpen]);
-
   useEffect(() => {
     setOpen(false);
-  }, [router]);
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
+  }, [path]);
+  const transparent = path === "/" && !scrolled;
   return (
     <div
-      className={clsx(
-        "fixed top-0 left-0 right-0 flex items-center justify-center p-4  text-white w-full z-50 lg:hidden",
-        shouldShowTransparent ? "bg-transparent" : "bg-white shadow-md"
-      )}
-      ref={ref}
+      className={`fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 py-4 lg:hidden ${transparent ? "text-white" : "bg-white text-green-default shadow-sm"}`}
     >
-      <div className="flex flex-row px-6 justify-between items-center w-full">
-        <div className="flex items-center justify-center z-50">
-          <Link href="/" onClick={handleClose} className="">
-            {isOpen ? (
-              <Image
-                src="/assets/images/logos/logo-zoodoo-white.png"
-                alt="ZooDoo logo"
-                width={100}
-                height={100}
-              />
-            ) : shouldShowTransparent ? (
-              <Image
-                src="/assets/images/logos/logo-zoodoo-white.png"
-                alt="ZooDoo logo"
-                width={100}
-                height={100}
-              />
-            ) : (
-              <Image
-                src="/assets/images/logos/logo-zoodoo-green.png"
-                alt="ZooDoo logo"
-                width={100}
-                height={100}
-              />
-            )}
-          </Link>
-        </div>
-        <div className="z-50">
-          <Hamburger
-            toggled={isOpen}
-            size={30}
-            toggle={setOpen}
-            color={
-              isOpen ? "white" : shouldShowTransparent ? "white" : "#14532D"
-            }
-          />
-        </div>
-      </div>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed left-0 right-0 top-0 py-5 pt-0 bg-[#14532D] border-b border-b-white/20 h-full"
+      <Link href="/" aria-label="ZooDoo — Trang chủ">
+        <Image
+          src={`/assets/images/logos/logo-zoodoo-${transparent ? "white" : "green"}.png`}
+          alt="ZooDoo"
+          width={100}
+          height={70}
+        />
+      </Link>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button
+            type="button"
+            aria-label="Mở menu"
+            className="min-h-11 min-w-11 flex items-center justify-center"
           >
-            <nav className="mt-32 flex w-full flex-col justify-center items-center ">
-              <ul className="w-full">
-                <li className="py-2 ">
-                  <Link
-                    href="/ve-zoodoo"
-                    className="w-full h-full"
-                    onClick={handleClose}
-                  >
-                    <p className="text-center w-full p-6 focus:bg-green-800 active:bg-green-800 text-gray-light text-xl focus:text-white active:text-white">
-                      Về chúng tôi
-                    </p>
-                  </Link>
-                </li>
-                <li className="py-2 ">
-                  <Link
-                    href="/ghe-tham-zoodoo"
-                    className="w-full h-full"
-                    onClick={handleClose}
-                  >
-                    <p className="text-center w-full p-6 focus:bg-green-800 active:bg-green-800 text-gray-light text-xl focus:text-white active:text-white">
-                      Ghé Thăm ZooDoo
-                    </p>
-                  </Link>
-                </li>
-                <li className="py-2 ">
-                  <Link
-                    href="/trai-nghiem-zoodoo"
-                    className="w-full h-full"
-                    onClick={handleClose}
-                  >
-                    <p className="text-center w-full p-6 focus:bg-green-800 active:bg-green-800 text-gray-light text-xl focus:text-white active:text-white">
-                      Trải nghiệm ở ZooDoo
-                    </p>
-                  </Link>
-                </li>
-                <li className="py-2 ">
-                  <Link
-                    href="/tin-tuc-va-hoat-dong"
-                    className="w-full h-full"
-                    onClick={handleClose}
-                  >
-                    <p className="text-center w-full p-6 focus:bg-green-800 active:bg-green-800 text-gray-light text-xl focus:text-white active:text-white">
-                      Tin tức hoạt động
-                    </p>
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <Menu size={30} />
+          </button>
+        </DialogTrigger>
+        <DialogContent
+          aria-describedby={undefined}
+          className="left-0 top-0 translate-x-0 translate-y-0 max-w-none h-dvh rounded-none bg-green-default text-white border-0 pt-24 overflow-y-auto"
+        >
+          <DialogTitle className="sr-only">Menu điều hướng ZooDoo</DialogTitle>
+          <nav
+            aria-label="Điều hướng chính"
+            className="flex flex-col gap-4 text-xl"
+          >
+            {[
+              ["/ve-zoodoo", "Về chúng tôi"],
+              ["/ghe-tham-zoodoo", "Ghé thăm ZooDoo"],
+              ["/trai-nghiem-zoodoo", "Trải nghiệm ở ZooDoo"],
+              ["/tin-tuc-va-hoat-dong", "Tin tức và hoạt động"],
+              ["/lien-he-zoodoo", "Liên hệ"],
+            ].map(([href, label]) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                className="px-6 py-3"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-};
+}

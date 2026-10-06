@@ -20,7 +20,8 @@ const HiringCard: FC<IHiringCardProps> = ({ job }) => {
           className="absolute inset-0 object-cover w-full h-full"
           src={NewImage.src}
           alt="Article"
-          layout="fill"
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
         />
       </div>
       <div className="p-5 flex flex-col bg-gray-light rounded-b-lg">
@@ -47,22 +48,24 @@ const HiringCard: FC<IHiringCardProps> = ({ job }) => {
         </div>
         <div
           className={clsx(
-            "inline-flex items-center justify-start py-3 border border-transparent bg-transparent mt-3"
+            "inline-flex items-center justify-start py-3 border border-transparent bg-transparent mt-3",
           )}
         >
-          <span className={clsx("pr-2 uppercase  text-[20px] text-[#39B33A]")}>
+          <span
+            className={clsx("pr-2 uppercase  text-[20px] text-green-default")}
+          >
             XEM CHI TIẾT
           </span>
           <svg
             width="10"
             height="16"
             viewBox="0 0 10 16"
-            fill={"#39B33A"}
+            fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M1.2045 13.2046C0.765166 13.6439 0.765166 14.3561 1.2045 14.7955C1.64384 15.2348 2.35616 15.2348 2.79549 14.7955L8.79545 8.7955C9.23105 8.35999 9.2354 7.65522 8.8052 7.21437L2.95128 1.21437C2.51738 0.769645 1.80513 0.76087 1.36041 1.19478C0.915691 1.62867 0.906917 2.34092 1.34081 2.78565L6.41874 7.99027L1.2045 13.2046Z"
-              fill={"#39B33A"}
+              fill="currentColor"
             />
           </svg>
         </div>

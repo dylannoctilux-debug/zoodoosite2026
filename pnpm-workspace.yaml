@@ -1,0 +1,11 @@
+packages:
+  - services/api
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - prisma
+  - esbuild
+  - sharp
+injectWorkspacePackages: true
+overrides:
+  deepmerge-ts: "8.0.0"

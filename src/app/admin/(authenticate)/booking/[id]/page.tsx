@@ -5,10 +5,11 @@ import { BookingForm } from "./booking-form";
 import Link from "next/link";
 
 export default async function AdminBookingDetail({
-  params: { id },
+  params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const booking = await getBooking({ id });
   return (
     <div className="h-full px-4 py-6 lg:px-8">

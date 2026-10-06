@@ -1,48 +1,28 @@
-import { initContentfulClient } from "@/lib/contentful";
-
-import { INewsSkeleton } from "@/types/contentful";
-
-export default async function sitemap() {
-  const SITE_URLL = process.env.SITE_URLL || "https://www.zoodoodalat.com";
-
-  const response = await initContentfulClient.getEntries<INewsSkeleton>({
-    content_type: "news",
-    order: ["-sys.createdAt"],
-  });
-
-  const sitesURL = response.items.map((item) => ({
-    url: SITE_URLL + "/tin-tuc-va-hoat-dong/" + item.fields.slug,
-    lastModified: new Date(item.sys.updatedAt),
-  }));
-
+import type { MetadataRoute } from "next";
+import { allSlugs } from "@/lib/contentful";
+export const dynamic = "force-dynamic";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = new URL(process.env.SITE_URL || "https://zoodoo.vn").origin;
+  const [news, jobs] = await Promise.all([
+    allSlugs("news"),
+    allSlugs("hiring"),
+  ]);
   return [
-    {
-      url: SITE_URLL,
-      lastModified: new Date(),
-    },
-    {
-      url: SITE_URLL + "/ghe-tham-zoodoo",
-      lastModified: new Date(),
-    },
-    {
-      url: SITE_URLL + "/lien-he-zoodoo",
-      lastModified: new Date(),
-    },
-    {
-      url: SITE_URLL + "/tin-tuc-va-hoat-dong",
-      lastModified: new Date(),
-    },
-    {
-      url: SITE_URLL + "/trai-nghiem-zoodoo",
-      lastModified: new Date(),
-    },
-    {
-      url: SITE_URLL + "/tuyen-dung",
-      lastModified: new Date(),
-    },
-    {
-      url: SITE_URLL + "/ve-zoo-doo",
-      lastModified: new Date(),
-    },
-  ].concat(sitesURL);
+    { url: base },
+    ...[
+      "ghe-tham-zoodoo",
+      "lien-he-zoodoo",
+      "tin-tuc-va-hoat-dong",
+      "trai-nghiem-zoodoo",
+      "ve-zoodoo",
+    ].map((path) => ({ url: `${base}/${path}` })),
+    ...news.map((p) => ({
+      url: `${base}/tin-tuc-va-hoat-dong/${encodeURIComponent(p.slug)}`,
+      lastModified: new Date(p.updated),
+    })),
+    ...jobs.map((p) => ({
+      url: `${base}/tuyen-dung/${encodeURIComponent(p.slug)}`,
+      lastModified: new Date(p.updated),
+    })),
+  ];
 }

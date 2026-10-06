@@ -25,9 +25,9 @@ const AnimalsIntro = () => {
           height={60}
         />
       </div>
-      <div className="font-bold  text-3xl lg:text-4xl lg:text-[48px] text-text-default uppercase lg:text-start text-center">
+      <h2 className="font-bold  text-3xl lg:text-4xl lg:text-[48px] text-text-default uppercase lg:text-start text-center">
         Các loài động vật tại ZooDoo
-      </div>
+      </h2>
       <div className="w-full lg:w-4/5 py-4 text-lg lg:text-xl text-text-default leading-loose lg:text-start text-center">
         Tại ZooDoo Dalat, bạn sẽ có cơ hội khám phá và tương tác với một loạt
         các loài động vật phong phú. Hãy đắm mình trong không gian xanh mát và
@@ -41,14 +41,11 @@ const AnimalsIntro = () => {
         image4="/assets/images/animals/capybara-cut.png"
       />{" "}
       <div className="w-full flex flex-row items-center justify-center py-6">
-        <a href="/trai-nghiem-zoodoo">
-          <CTAButton
-            text="Xem thêm"
-            onClick={() => {}}
-            bgColor="green"
-            className="px-12"
-            uppercase={false}
-          />
+        <a
+          href="/trai-nghiem-zoodoo"
+          className="rounded-full bg-green-default text-white px-12 py-3 font-semibold"
+        >
+          Xem thêm
         </a>
       </div>
     </div>

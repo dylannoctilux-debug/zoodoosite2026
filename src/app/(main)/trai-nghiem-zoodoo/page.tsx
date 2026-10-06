@@ -17,7 +17,11 @@ const Experiences = () => {
   return (
     <div className="flex flex-col pt-32 overflow-x-hidden">
       <MainContainer background={BannerImage.src}>
-        <SectionTitle icon={Icon5.src} title={"CÁC LOÀI ĐỘNG VẬT Ở ZOODOO"} />
+        <SectionTitle
+          level="h1"
+          icon={Icon5.src}
+          title={"CÁC LOÀI ĐỘNG VẬT Ở ZOODOO"}
+        />
         <div
           className={
             "text-lg lg:text-xl text-black lg:w-[750px] leading-loose text-center lg:mx-24"

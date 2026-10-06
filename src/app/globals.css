@@ -19,9 +19,9 @@
   --zd-primary: #003b1b;
   --zd-primary-hover: #2e6a41;
   --zd-brown: #5a3e2b;
-  --zd-gold: #c8a97a;
+  --zd-gold: #d4b587;
   --zd-amber: #ffc703;
-  --zd-amber-text: #6e5400;
+  --zd-amber-text: #5a4300;
   --zd-surface: #f0fdf4;
   --zd-cream: #f7f3ee;
   --zd-card-bg: #eaf7ee;
@@ -44,7 +44,7 @@
   --muted-foreground: 158 10% 40%;
   --accent: 40 100% 50%;
   --accent-foreground: 40 100% 20%;
-  --destructive: 0 84.2% 60.2%;
+  --destructive: 0 72% 40%;
   --destructive-foreground: 0 0% 98%;
   --border: 138 22% 86%;
   --input: 138 22% 86%;
@@ -57,7 +57,7 @@
   --pagination-prefix-cls: rc-pagination;
   --primary-color: #003b1b;
   --pagination-item-bg: #fff;
-  --pagination-item-size: 28px;
+  --pagination-item-size: 44px;
   --pagination-item-size-sm: 24px;
   --pagination-font-family: Arial;
   --pagination-font-weight-active: 500;
@@ -173,12 +173,12 @@ ul.list {
 
 .rc-pagination-item-active:hover,
 .rc-pagination-item-active:focus {
-  border-color: #39b33a;
+  border-color: var(--zd-primary);
 }
 
 .rc-pagination-item-active:hover a,
 .rc-pagination-item-active:focus a {
-  color: --pagination-item-input-bg;
+  color: var(--pagination-item-input-bg);
 }
 
 .rc-pagination-jump-prev,
@@ -233,7 +233,7 @@ ul.list {
 
 .rc-pagination-prev:hover button,
 .rc-pagination-next:hover button {
-  border-color: #39b33a;
+  border-color: var(--zd-primary);
 }
 
 .rc-pagination-item-link {
@@ -450,7 +450,7 @@ ul.list {
   }
 }
 
-@media only ≈screen and (max-width: 768px) {
+@media only screen and (max-width: 768px) {
   .center-swiper .swiper-slide {
     width: var(--swiper-mobile-width);
     transform: scale(var(--swiper-mobile-inactive-scale));
@@ -496,5 +496,41 @@ ul.list {
   .zalo-chat-widget {
     bottom: 90px !important;
     right: 30px !important;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--zd-primary-hover) !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px white !important;
+}
+input,
+textarea,
+select {
+  font-size: max(1rem, 16px);
+}
+::selection {
+  background: var(--zd-amber);
+  color: var(--zd-amber-text);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .center-swiper .swiper-slide,
+  .center-swiper .swiper-backface-hidden .swiper-slide {
+    transition: none;
+    transform: none !important;
+  }
+  button,
+  a,
+  [data-state] {
+    transition: none !important;
+    animation: none !important;
+  }
+  button:hover,
+  a:hover {
+    scale: 1 !important;
+    transform: none !important;
   }
 }

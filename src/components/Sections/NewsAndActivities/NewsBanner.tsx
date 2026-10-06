@@ -1,57 +1,50 @@
-"use client";
-import { FC } from "react";
-import Image from "next/legacy/image";
-import { useRouter } from "next/navigation";
-
-import { Text } from "@contentful/rich-text-types";
-import { INewsFields } from "@/types/contentful";
-
-import CTAButtonTransperent from "@/components/Buttons/CTAButton/CTAButtonTransperent";
-
-interface INewsBannerProps {
-  post: {
-    fields: INewsFields;
-  };
-}
-
-const NewsBanner: FC<INewsBannerProps> = ({ post }) => {
-  const { title, slug, content, description } = post.fields;
-
-  const router = useRouter();
-
-  const handleSeeMore = () => {
-    router.push(`/tin-tuc-va-hoat-dong/${slug}`);
-  };
-
-  return (
-    <div className="flex flex-col lg:grid lg:grid-cols-5 py-16 pt-44">
-      <div className="lg:col-span-3 flex flex-col  lg:pr-16 lg:mr-16  ">
-        <div className=" text-text-title text-2xl lg:text-4xl">
-          HOẠT ĐỘNG NỔI BẬT
-        </div>
-        <div className="text-3xl lg:text-5xl text-text-title font-bold leading-normal lg:leading-[72px]">
-          {title.toString()}
-        </div>
-        <div className="font-medium text-lg text-text-gray leading-7 py-3">
-          {(description?.content[0].content[0] as Text).value}
-        </div>
-        <div className="flex items-start">
-          <CTAButtonTransperent text="Xem thêm" onClick={handleSeeMore} />
-        </div>
+import Image from "next/image";
+import Link from "next/link";
+import type { INewsFields } from "@/types/contentful";
+import { richText, imageUrl } from "@/lib/content";
+export default function NewsBanner({
+  post,
+}: {
+  post?: { fields: INewsFields };
+}) {
+  if (!post)
+    return (
+      <div className="py-32">
+        <h1 className="text-3xl font-bold">Tin tức và hoạt động</h1>
+        <p className="mt-4">
+          Chưa có bài viết được đăng. Vui lòng quay lại sau.
+        </p>
       </div>
-      <div className="lg:col-span-2">
+    );
+  const { title, slug, description, coverImage } = post.fields;
+  return (
+    <div className="flex flex-col lg:grid lg:grid-cols-5 py-16 pt-44 gap-8">
+      <div className="lg:col-span-3">
+        <h1 className="text-3xl lg:text-5xl text-text-title font-bold leading-tight">
+          {title}
+        </h1>
+        <p className="text-lg text-text-gray py-4">{richText(description)}</p>
+        <Link
+          href={`/tin-tuc-va-hoat-dong/${slug}`}
+          className="inline-block text-green-default font-semibold py-3"
+        >
+          Xem thêm
+        </Link>
+      </div>
+      <div className="lg:col-span-2 relative aspect-square">
         <Image
-          src={`https:${post?.fields?.coverImage?.fields?.file?.url}`}
-          layout="responsive"
-          width={200}
-          height={200}
-          className="rounded-lg"
+          src={imageUrl(
+            coverImage && "fields" in coverImage
+              ? coverImage.fields?.file?.url
+              : undefined,
+          )}
+          fill
+          sizes="(max-width: 1023px) 90vw, 40vw"
+          className="rounded-lg object-cover"
           alt={title}
           priority
         />
       </div>
     </div>
   );
-};
-
-export default NewsBanner;
+}

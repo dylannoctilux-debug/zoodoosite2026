@@ -27,7 +27,11 @@ const AboutUs = async () => {
   return (
     <div className="flex flex-col pt-24">
       <MainContainer>
-        <SectionTitle icon={Icon5.src} title={"Tổng Quan về ZooDoo Đà Lạt"} />
+        <SectionTitle
+          level="h1"
+          icon={Icon5.src}
+          title={"Tổng Quan về ZooDoo Đà Lạt"}
+        />
         <div className="flex flex-col justify-center items-center gap-6 max-w-4xl py-8 lg:px-0">
           <p className="text-center font-medium text-lg lg:text-xl ">
             Thành lập vào năm 2015, ZooDoo Đà Lạt là một công viên động vật nằm
@@ -63,6 +67,7 @@ const AboutUs = async () => {
             src={"/assets/images/zoodoo-intro.png"}
             alt="ZooDoo logo"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             style={{
               objectFit: "contain",
             }}

@@ -24,6 +24,7 @@ const IntroWithOnePicture: FC<IIntroWithOnePictureProps> = ({
           src={picture}
           alt="ZooDoo logo"
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           style={{
             objectFit: "contain",
           }}
