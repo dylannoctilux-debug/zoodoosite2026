@@ -12,7 +12,7 @@ import {
   slotTimes,
   validateVisit,
   zooDate,
-} from "../../shared/booking";
+} from "../../../shared/booking";
 import {
   HttpError,
   serviceAuthorized,

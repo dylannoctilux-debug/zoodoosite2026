@@ -49,6 +49,8 @@ Bằng chứng nhỏ được lưu trong [verification](verification/): [test](v
 | F27 · P2 | Hero ẩn chờ hydration, không reduced motion                    | initial=false cho hero/reveal; xử lý useReducedMotion/CSS giảm transition/animation/hover scale. Chưa kiểm tra OS/device accessibility đầy đủ.                                                                                                    |
 | F28 · P2 | Slug substring, CMS rỗng lỗi, thiếu hướng dẫn                  | Equality slug, guard document/ảnh/date, not-found/empty/error rõ; CMS server-only timeout; .env.example, README, hướng dẫn schema/backup/rollback. Cần CMS staging thật cho toàn luồng nội dung.                                                  |
 
+API riêng nằm trong `services/api`, tránh thư mục `api` mà Vercel tự nhận là serverless public. CI dùng DB Docker private để không phụ thuộc tải binary MongoDB khi test trên runner.
+
 ## Cần trước release
 
 1. Chỉ định host API/MongoDB, volume staging và kết nối private từ Vercel (không expose API public). Review/diễn tập Docker template; máy làm việc hiện không có Docker.

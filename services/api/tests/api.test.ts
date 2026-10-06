@@ -10,7 +10,7 @@ import { MongoMemoryReplSet } from "mongodb-memory-server";
 import type { Transporter } from "nodemailer";
 import { createApp } from "../src/app";
 import { deliverOne } from "../src/outbox";
-import { zooDate, zooInstant } from "../../shared/booking";
+import { zooDate, zooInstant } from "../../../shared/booking";
 
 let repl: MongoMemoryReplSet,
   db: PrismaClient,
@@ -29,19 +29,59 @@ const headers = (token?: string) => ({
 let bookingId: string, contactId: string, fileId: string;
 before(async () => {
   await mkdir(uploadDir, { recursive: true });
-  repl = await MongoMemoryReplSet.create({
-    replSet: { count: 1, storageEngine: "wiredTiger" },
-    binary: { version: "7.0.24" },
-  });
-  const uri = repl.getUri("zoodoo_test");
+  let uri: string;
+  const external = process.env.TEST_MONGODB_URI;
+  if (external) {
+    const parsed = new URL(external);
+    if (
+      process.env.CI !== "true" ||
+      parsed.hostname !== "zoodoo-test-db" ||
+      parsed.pathname !== "/zoodoo_test"
+    )
+      throw new Error("Chỉ cho phép database fixture trong network CI riêng");
+    const admin = new PrismaClient({
+      datasources: {
+        db: {
+          url: "mongodb://zoodoo-test-db:27017/admin?directConnection=true",
+        },
+      },
+    });
+    try {
+      await admin.$runCommandRaw({
+        replSetInitiate: {
+          _id: "rs0",
+          members: [{ _id: 0, host: "zoodoo-test-db:27017" }],
+        },
+      });
+      let ready = false;
+      for (let i = 0; i < 60; i++) {
+        const hello = await admin.$runCommandRaw({ hello: 1 });
+        if (hello.isWritablePrimary) {
+          ready = true;
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      if (!ready) throw new Error("CI replica set chưa sẵn sàng");
+    } finally {
+      await admin.$disconnect();
+    }
+    uri = external;
+  } else {
+    repl = await MongoMemoryReplSet.create({
+      replSet: { count: 1, storageEngine: "wiredTiger" },
+      binary: { version: "7.0.24" },
+    });
+    uri = repl.getUri("zoodoo_test");
+  }
   execFileSync(
     process.execPath,
     [
-      resolve("api/node_modules/prisma/build/index.js"),
+      resolve("services/api/node_modules/prisma/build/index.js"),
       "db",
       "push",
       "--schema",
-      resolve("api/schema.prisma"),
+      resolve("services/api/schema.prisma"),
       "--skip-generate",
     ],
     { env: { ...process.env, MONGODB_URI: uri }, stdio: "pipe" },

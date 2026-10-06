@@ -11,7 +11,7 @@ Quy định được giữ theo xác nhận của chủ dự án: đặt trướ
 ## Cấu trúc
 
 - `src/`: Next.js frontend và các handler chuyển tiếp. Frontend không có Prisma, URI MongoDB hoặc credentials SMTP.
-- `api/`: Fastify + Prisma/MongoDB. API kiểm tra service identity và session/quyền riêng cho từng tài nguyên. API là thành phần duy nhất kết nối DB; xử lý email chạy cùng API.
+- `services/api/`: Fastify + Prisma/MongoDB. API kiểm tra service identity và session/quyền riêng cho từng tài nguyên. API là thành phần duy nhất kết nối DB; xử lý email chạy cùng API.
 - `shared/`: validation và lịch/múi giờ dùng chung.
 - `deploy/`: template Docker Swarm với secrets mã hóa, mạng tách biệt, volume external. API/DB không publish port; frontend container tùy chọn có replicas 0 vì mặc định vẫn dùng Vercel.
 
@@ -28,7 +28,7 @@ pnpm build
 pnpm audit --prod
 ```
 
-Test tích hợp tự tạo MongoDB replica set với dữ liệu giả; lần đầu tải binary MongoDB 7.0.24. Không đọc DB/CMS/SMTP production. Sau test, DB và thư mục thử nghiệm được dọn. Build không cần gọi CMS; dữ liệu CMS được lấy khi phục vụ request. Thiếu CMS hiển thị trạng thái lỗi có nút thử lại, không giả báo danh sách rỗng.
+CI chạy các test trong container API thử nghiệm với MongoDB trên network internal, không publish port database. Chạy local tự tạo MongoDB replica set với dữ liệu giả; lần đầu tải binary MongoDB 7.0.24. Không đọc DB/CMS/SMTP production. Sau test, DB và thư mục thử nghiệm được dọn. Build không cần gọi CMS; dữ liệu CMS được lấy khi phục vụ request. Thiếu CMS hiển thị trạng thái lỗi có nút thử lại, không giả báo danh sách rỗng.
 
 `pnpm audit --prod` kiểm tra dependency runtime của cả workspace. Báo cáo đầy đủ vẫn có advisory ở `braces` thuộc chuỗi công cụ lint/Tailwind; chưa có bản vá phù hợp trong lần xác minh này. Không xử lý đầu vào người dùng bằng các công cụ build đó. ESLint 10 dùng `@eslint/compat` cho plugin React/import/accessibility của Next hiện còn khai báo peer ESLint 9; lint đã kiểm tra thực tế.
 
@@ -49,7 +49,7 @@ Vercel Preview sử dụng origin của chính deployment cho kiểm tra CSRF; d
 
 ## API, DB và volume
 
-Xem `api/.env.example` và [hướng dẫn hạ tầng](deploy/README.md). API cần URI MongoDB replica set, volume `/data/uploads`, service secret và SMTP. Credentials cần đọc lại được lưu mã hóa trong secret manager; không lưu file secrets plaintext trên host. Docker Swarm secrets được mã hóa trong Raft và mount trong bộ nhớ của task; khóa/backup secrets quản lý riêng.
+Xem `services/api/.env.example` và [hướng dẫn hạ tầng](deploy/README.md). API cần URI MongoDB replica set, volume `/data/uploads`, service secret và SMTP. Credentials cần đọc lại được lưu mã hóa trong secret manager; không lưu file secrets plaintext trên host. Docker Swarm secrets được mã hóa trong Raft và mount trong bộ nhớ của task; khóa/backup secrets quản lý riêng.
 
 User/Booking giữ nguyên collection, ID và tên trường hiện tại. Các collection mới là bổ sung. MongoDB cần replica set để transaction ghi yêu cầu + sự kiện email cùng nhau. Không bật `--accept-data-loss` và không chạy schema tự động khi app khởi động.
 

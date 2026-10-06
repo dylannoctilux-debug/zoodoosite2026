@@ -169,7 +169,7 @@ importers:
         specifier: ^5.9.2
         version: 5.9.3
 
-  api:
+  services/api:
     dependencies:
       "@prisma/client":
         specifier: 6.19.3

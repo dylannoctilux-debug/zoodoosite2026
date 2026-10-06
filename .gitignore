@@ -38,7 +38,7 @@ next-env.d.ts
 .env
 .env.*
 !.env.example
-api/node_modules/
+services/api/node_modules/
 .test-data/
 secrets/
 artifacts/

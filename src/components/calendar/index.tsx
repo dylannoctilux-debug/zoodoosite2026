@@ -116,6 +116,11 @@ export const Calendar = ({ canUpdate = false }: { canUpdate?: boolean }) => {
               data: { start_time: info.event.start, end_time: info.event.end },
             });
             if (!result.ok) throw new Error(result.error);
+            setEvents((current) =>
+              current.map((event) =>
+                event.id === result.data.id ? result.data : event,
+              ),
+            );
           } catch (e) {
             info.revert();
             toast({

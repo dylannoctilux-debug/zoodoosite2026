@@ -2,7 +2,7 @@ FROM node:22-alpine AS build
 WORKDIR /app
 RUN apk add --no-cache openssl && npm install --global pnpm@10.15.1
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY api/package.json api/schema.prisma api/
+COPY services/api/package.json services/api/schema.prisma services/api/
 RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build

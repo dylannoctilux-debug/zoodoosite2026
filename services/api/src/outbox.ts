@@ -6,7 +6,7 @@ import { join } from "node:path";
 import BookingReceiveEmail from "./emails/new-booking.template";
 import BookingConfirmEmail from "./emails/confirm-booking.email";
 import { escapeHtml } from "./security";
-import { zooDate } from "../../shared/booking";
+import { zooDate } from "../../../shared/booking";
 
 export async function deliverOne(
   db: PrismaClient,

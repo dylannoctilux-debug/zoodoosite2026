@@ -16,8 +16,8 @@ Build từ root repo, push vào registry được quản lý; không truyền se
 
 ```sh
 docker build -t zoodoo-frontend:staging .
-docker build -f api/Dockerfile --target runtime -t zoodoo-api:staging .
-docker build -f api/Dockerfile --target operations -t zoodoo-api-operations:staging .
+docker build -f services/api/Dockerfile --target runtime -t zoodoo-api:staging .
+docker build -f services/api/Dockerfile --target operations -t zoodoo-api-operations:staging .
 ```
 
 Cấu hình hai biến không bí mật `ZOODOO_API_IMAGE`, `ZOODOO_FRONTEND_IMAGE` trỏ tới image đã push (ưu tiên digest). Chạy `docker stack deploy` từ thư mục `deploy` để đường dẫn config script đúng. Frontend container có cổng 3000 nhưng replicas 0; không bật trên Internet trước khi có TLS ingress.

@@ -9,7 +9,7 @@
     "lint": "eslint src shared tests --max-warnings=0",
     "postinstall": "pnpm --filter @zoodoo/api db:generate",
     "typecheck": "next typegen && tsc --noEmit && pnpm --filter @zoodoo/api typecheck",
-    "test": "tsx --test tests/*.test.ts api/tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts services/api/tests/*.test.ts"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "16.2.2",
@@ -69,6 +69,6 @@
   },
   "packageManager": "pnpm@10.15.1",
   "engines": {
-    "node": ">=22.14.0"
+    "node": "22.x"
   }
 }

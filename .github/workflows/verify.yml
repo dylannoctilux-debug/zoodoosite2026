@@ -40,12 +40,21 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      - name: Test with private MongoDB replica set
+        run: |
+          docker network create --internal zoodoo-tests
+          docker run -d --name zoodoo-test-db --network zoodoo-tests mongo:7.0 --replSet rs0 --bind_ip_all
+          docker run --rm --network zoodoo-tests --mount "type=bind,source=$PWD,target=/app" --workdir /app --env CI=true --env "TEST_MONGODB_URI=mongodb://zoodoo-test-db:27017/zoodoo_test?replicaSet=rs0" node:22-bookworm node --import tsx --test tests/*.test.ts services/api/tests/*.test.ts
+      - name: Remove disposable database/network
+        if: always()
+        run: |
+          docker rm --force zoodoo-test-db || true
+          docker network rm zoodoo-tests || true
       - run: pnpm build
       - run: pnpm audit --prod --audit-level=low
       - name: Check API runtime package
         run: |
           pnpm --filter @zoodoo/api deploy --prod artifacts/api-package
           cd artifacts/api-package
-          node ../../api/node_modules/prisma/build/index.js generate --schema schema.prisma
+          node ../../services/api/node_modules/prisma/build/index.js generate --schema schema.prisma
           node --input-type=module -e 'import {PrismaClient} from "@prisma/client"; const db=new PrismaClient(); await db.$disconnect();'
